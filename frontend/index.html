@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>LMT EPLY Tracker</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='.9em' font-size='80' x='10'>👆</text></svg>">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a1a;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── ORBS ── */
+        .orbs { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+        .orb  { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.2; animation:drift 10s ease-in-out infinite alternate; }
+        .orb1 { width:450px;height:450px; background:radial-gradient(circle,#6366f1,transparent); top:-100px;left:-100px; }
+        .orb2 { width:350px;height:350px; background:radial-gradient(circle,#8b5cf6,transparent); bottom:-80px;right:-80px; animation-delay:3s; }
+        .orb3 { width:250px;height:250px; background:radial-gradient(circle,#06b6d4,transparent); top:40%;left:50%; animation-delay:6s; }
+        @keyframes drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(25px,30px) scale(1.08)} }
+
+        /* ── INTRO OVERLAY ── */
+        .intro-overlay {
+            position: fixed; inset: 0;
+            background: #0a0a1a;
+            z-index: 100;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 16px;
+            animation: introFade 0.6s ease 2.2s both forwards;
+        }
+        @keyframes introFade { to{ opacity:0; pointer-events:none; visibility:hidden; } }
+
+        .intro-logo {
+            width: 88px; height: 88px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 26px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.4rem; color: white;
+            box-shadow: 0 0 70px rgba(99,102,241,0.6);
+            animation: pop 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+        }
+        .intro-brand {
+            font-size: 2rem; font-weight: 800;
+            background: linear-gradient(135deg, #fff, #c4b5fd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: pop 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.6s both;
+        }
+        .intro-sub {
+            font-size: 0.85rem; color: #64748b;
+            animation: pop 0.6s ease 0.9s both;
+        }
+        @keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+
+        /* ── MAIN SPLASH ── */
+        .splash {
+            position: relative; z-index: 1;
+            height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding-top: 70px;
+        }
+
+        /* Top logo */
+        .splash-logo {
+            position: absolute; top: 20px;
+            display: flex; align-items: center; gap: 12px;
+            animation: slideDown 0.8s ease 2s both;
+        }
+        .splash-logo-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 13px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+        }
+        .splash-logo h1 {
+            font-size: 1.4rem; font-weight: 800;
+            background: linear-gradient(135deg, #fff, #c4b5fd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── CARDS ── */
+        .cards-wrapper {
+            position: relative;
+            width: 100%; max-width: 420px;
+            height: 440px;
+        }
+
+        /* Cards hidden by default, shown after intro */
+        .cards-wrapper { opacity: 0; }
+        .cards-wrapper.visible { 
+            opacity: 1; 
+            transition: opacity 0.5s ease;
+        }
+
+        .person-card {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center;
+            opacity: 0;
+            transform: translateX(110%) scale(0.88);
+            transition: all 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .person-card.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .person-card.exit-left {
+            opacity: 0;
+            transform: translateX(-110%) scale(0.88);
+        }
+
+        /* Photo */
+        .photo-frame {
+            width: 200px; height: 260px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid rgba(99,102,241,0.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 50px rgba(99,102,241,0.15);
+            background: #1a1a2e;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .photo-frame img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+        }
+
+        .photo-frame::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, transparent 55%, rgba(10,10,26,0.5) 100%);
+        }
+
+        /* Info */
+        .person-info { text-align: center; }
+
+        .person-name {
+            font-size: 1.35rem; font-weight: 800; color: #f1f5f9;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .person-role {
+            font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px;
+        }
+
+        .role-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 16px;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 20px;
+            font-size: 0.78rem; font-weight: 600; color: #a5b4fc;
+        }
+
+        /* Dots */
+        .dots {
+            position: absolute; bottom: 0;
+            left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px;
+        }
+
+        .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.3s; cursor: pointer;
+        }
+        .dot.active { width: 24px; border-radius: 4px; background: #6366f1; }
+
+        /* ── BOTTOM ── */
+        .splash-bottom {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 20px 24px 44px;
+            background: linear-gradient(to top, rgba(10,10,26,0.97) 65%, transparent);
+            display: flex; flex-direction: column;
+            align-items: center; gap: 14px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-team-text {
+            font-size: 0.82rem; color: #475569;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .btn-enter {
+            width: 100%; max-width: 300px;
+            padding: 15px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; border: none;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem; font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 8px 30px rgba(99,102,241,0.45);
+            transition: all 0.3s;
+            animation: slideUp 0.8s ease 2.6s both;
+        }
+        .btn-enter:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(99,102,241,0.6);
+        }
+        @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%; max-width: 300px;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px; overflow: hidden;
+            animation: slideUp 0.8s ease 2.1s both;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 3s linear;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Intro (1.8s) -->
+    <div class="intro-overlay">
+        <div class="intro-logo"><i class="fas fa-fingerprint"></i></div>
+        <div class="intro-brand">LMT EPLY Tracker</div>
+        <div class="intro-sub">Smart Employee Attendance System</div>
+    </div>
+
+    <!-- Background Orbs -->
+    <div class="orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+
+    <!-- Splash Screen -->
+    <div class="splash">
+
+        <div class="splash-logo">
+            <div class="splash-logo-icon"><i class="fas fa-fingerprint"></i></div>
+            <h1>LMT EPLY Tracker</h1>
+        </div>
+
+        <div class="cards-wrapper">
+
+            <!-- Card 1 — Rishab Singh -->
+            <div class="person-card active" id="card-0">
+                <div class="photo-frame">
+                    <img src="images/person1.jpg" alt="Rishab Singh"
+                        onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:4rem;\'>👨‍💼</div>'">
+                </div>
+                <div class="person-info">
+                    <div class="person-name">Rishab Singh</div>
+                    <div class="person-role">Full Stack Developer</div>
+                    <span class="role-badge"><i class="fas fa-database"></i> Backend Lead</span>
+                </div>
+            </div>
+
+            <!-- Card 2 — Altaf Raja -->
+            <div class="person-card" id="card-1">
+                <div class="photo-frame">
+                    <img src="images/person2.jpg" alt="Altaf Raja"
+                        onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:4rem;\'>👨‍💻</div>'">
+                </div>
+                <div class="person-info">
+                    <div class="person-name">Altaf Raja</div>
+                    <div class="person-role">Frontend Developer</div>
+                    <span class="role-badge"><i class="fas fa-palette"></i> UI/UX Lead</span>
+                </div>
+            </div>
+
+            <!-- Dots -->
+            <div class="dots">
+                <div class="dot active" id="dot-0" onclick="goTo(0)"></div>
+                <div class="dot" id="dot-1" onclick="goTo(1)"></div>
+            </div>
+
+        </div>
+
+        <!-- Bottom -->
+        <div class="splash-bottom">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <p class="splash-team-text">
+                <i class="fas fa-heart" style="color:#f43f5e;"></i>
+                Built with passion by our team
+            </p>
+            <button class="btn-enter" onclick="goToLogin()">
+                <i class="fas fa-right-to-bracket"></i> App Mein Jao
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        let current = 0;
+        const TOTAL = 2;
+        const SLIDE_DELAY = 3000;
+        let autoTimer = null;
+
+        function goTo(index) {
+            const cards = document.querySelectorAll('.person-card');
+            const dots  = document.querySelectorAll('.dot');
+
+            cards[current].classList.remove('active');
+            cards[current].classList.add('exit-left');
+            current = index;
+            cards[current].classList.remove('exit-left');
+            cards[current].classList.add('active');
+            dots.forEach((d, i) => d.classList.toggle('active', i === current));
+
+            setTimeout(() => {
+                document.querySelectorAll('.person-card.exit-left')
+                    .forEach(c => c.classList.remove('exit-left'));
+            }, 700);
+
+            resetProgress();
+        }
+
+        function next() { goTo((current + 1) % TOTAL); }
+
+        function resetProgress() {
+            clearTimeout(autoTimer);
+            const fill = document.getElementById('progressFill');
+            fill.style.transition = 'none';
+            fill.style.width = '0%';
+            fill.offsetHeight; // reflow
+            fill.style.transition = `width ${SLIDE_DELAY}ms linear`;
+            fill.style.width = '100%';
+            autoTimer = setTimeout(next, SLIDE_DELAY);
+        }
+
+        function goToLogin() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.4s';
+            setTimeout(() => window.location.href = 'login.html', 400);
+        }
+
+        // Start after intro finishes (2.3s)
+        setTimeout(() => {
+            // Show cards
+            document.querySelector('.cards-wrapper').classList.add('visible');
+            document.querySelector('.splash-bottom').style.opacity = '1';
+            resetProgress();
+            // Auto login after both cards shown (3s x 2 + 4s buffer = 10s)
+            setTimeout(goToLogin, SLIDE_DELAY * TOTAL + 4000);
+        }, 2400);
+
+        // Swipe support
+        let tx = 0;
+        document.addEventListener('touchstart', e => tx = e.touches[0].clientX);
+        document.addEventListener('touchend', e => {
+            const diff = tx - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) diff > 0 ? next() : goTo((current - 1 + TOTAL) % TOTAL);
+        });
+    </script>
+
+</body>
+</html>
+

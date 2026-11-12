@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a1a">
+    <link rel="icon" href="images/icon-192.png">
+    <title>LMT EPLY Tracker — Login</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="login-body">
+
+<div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="login-wrapper">
+
+    <!-- LEFT PANEL -->
+    <div class="login-left">
+        <div class="brand-section">
+            <div class="brand-logo"><i class="fas fa-fingerprint"></i></div>
+            <h1>LMT EPLY Tracker</h1>
+            <p>Smart Employee Attendance System</p>
+        </div>
+        <div class="features-list">
+            <div class="feature-chip">
+                <div class="feature-chip-icon ic-cyan"><i class="fas fa-clock"></i></div>
+                <span>8 Hour Shift Tracking</span>
+            </div>
+            <div class="feature-chip">
+                <div class="feature-chip-icon ic-orange"><i class="fas fa-coffee"></i></div>
+                <span>1 Hour Break Management</span>
+            </div>
+            <div class="feature-chip">
+                <div class="feature-chip-icon ic-purple"><i class="fas fa-location-dot"></i></div>
+                <span>Geo-fence Attendance</span>
+            </div>
+            <div class="feature-chip">
+                <div class="feature-chip-icon ic-green"><i class="fas fa-chart-bar"></i></div>
+                <span>Attendance History & Reports</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="login-right">
+        <div class="login-box">
+
+            <div class="login-header">
+                <div class="step-badge"><i class="fas fa-circle-dot"></i> Employee Login</div>
+                <h2>Welcome Back!</h2>
+                <p>Enter your credentials to mark attendance</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label class="input-label">Username</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="Username" placeholder="Enter your username" required autocomplete="Username">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+                        <button type="button" class="toggle-pass" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    <i class="fas fa-right-to-bracket"></i> Login
+                </button>
+            </form>
+
+            <!-- Loading state -->
+            <div id="loginLoading" style="display:none; text-align:center; padding:20px 0;">
+                <div class="spinner-large"></div>
+                <p style="color:var(--text-muted); margin-top:10px;">Logging in...</p>
+            </div>
+
+            <div id="errorMsg" class="error-msg" style="display:none; margin-top:14px;">
+                <i class="fas fa-circle-exclamation"></i>
+                <span id="errorText"></span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+function togglePassword() {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const Username = document.getElementById('Username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorDiv = document.getElementById('errorMsg');
+    const errorTxt = document.getElementById('errorText');
+
+    errorDiv.style.display = 'none';
+
+    if (!Username || !password) {
+        errorTxt.textContent = 'Please enter username and password!';
+        errorDiv.style.display = 'flex';
+        return;
+    }
+
+    // Show loading
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('loginLoading').style.display = 'block';
+
+    try {
+        // Step 1: Get CSRF token first
+        await fetch('http://127.0.0.1:8000/api/auth/check/', {
+            credentials: 'include'
+        });
+
+        // Step 2: Get GPS (optional)
+        let lat = null, lon = null;
+        try {
+            const pos = await getPosition();
+            lat = pos.coords.latitude;
+            lon = pos.coords.longitude;
+        } catch (e) {
+            console.warn('GPS unavailable:', e.message);
+        }
+
+        // Step 3: Login
+        const result = await apiCall('/auth/login/', 'POST', {
+            Username,
+            password,
+            latitude:  lat,
+            longitude: lon,
+        });
+
+        if (result.success) {
+            localStorage.setItem('employee', JSON.stringify(result.employee));
+            // Admin ko admin panel, employee ko dashboard
+            if (result.is_admin) {
+                window.location.href = 'admin-panel.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+    } catch (err) {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('loginLoading').style.display = 'none';
+        errorTxt.textContent = err.error || 'Login failed. Please try again.';
+        errorDiv.style.display = 'flex';
+        console.error('Login error:', err);
+    }
+});
+</script>
+</body>
+</html>
+
+

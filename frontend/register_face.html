@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Register — LMT EPLY Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .reg-outer {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .reg-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 48px 44px;
+            max-width: 480px;
+            width: 100%;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 40px rgba(99,102,241,0.1);
+        }
+
+        .reg-logo {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(99,102,241,0.4);
+        }
+
+        .reg-card h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+
+        .reg-card > p {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .steps-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .step-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            width: 24px;
+            border-radius: 4px;
+            background: #6366f1;
+        }
+
+        .step-dot.done {
+            background: #10b981;
+        }
+
+        .success-box {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .success-icon {
+            width: 72px; height: 72px;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #6ee7b7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 20px;
+        }
+
+        .success-box h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .success-box p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="reg-outer">
+        <div class="reg-card">
+
+            <div class="reg-logo"><i class="fas fa-face-smile"></i></div>
+            <h2>Face Register</h2>
+            <p>Ek baar apna face register karo,<br>phir har din face verify karke attendance mark karo</p>
+
+            <div class="steps-indicator">
+                <div class="step-dot active" id="dot1"></div>
+                <div class="step-dot" id="dot2"></div>
+                <div class="step-dot" id="dot3"></div>
+            </div>
+
+            <!-- Step 1: Login -->
+            <div id="reg-login">
+                <div class="input-group">
+                    <label class="input-label">Username</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="regUsername" placeholder="Apna username">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="regPassword" placeholder="Password">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="loginForReg()">
+                    <i class="fas fa-arrow-right"></i> Aage Badho
+                </button>
+                <div id="regError" class="error-msg" style="display:none; margin-top:14px;">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span id="regErrorText"></span>
+                </div>
+            </div>
+
+            <!-- Step 2: Camera -->
+            <div id="reg-face" style="display:none;">
+                <div class="camera-container" style="max-width:100%; margin-bottom:14px;">
+                    <video id="video" autoplay muted playsinline style="width:100%;border-radius:16px;display:block;"></video>
+                    <canvas id="overlay" class="face-overlay"></canvas>
+                    <div class="camera-frame">
+                        <div class="corner tl"></div>
+                        <div class="corner tr"></div>
+                        <div class="corner bl"></div>
+                        <div class="corner br"></div>
+                    </div>
+                </div>
+
+                <div id="regFaceStatus" class="face-status" style="margin-bottom:14px;">
+                    <i class="fas fa-spinner fa-spin"></i> Camera shuru ho rahi hai...
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-secondary" onclick="goToLogin()">
+                        <i class="fas fa-arrow-left"></i> Wapas
+                    </button>
+                    <button class="btn-primary" id="captureBtn" onclick="captureAndRegister()" disabled style="flex:1;">
+                        <i class="fas fa-camera"></i> Register Karo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Success -->
+            <div id="reg-success" style="display:none;">
+                <div class="success-box">
+                    <div class="success-icon"><i class="fas fa-circle-check"></i></div>
+                    <h3>Face Register Ho Gaya! 🎉</h3>
+                    <p>Ab aap login page se face verify karke attendance mark kar sakte ho.</p>
+                    <a href="login.html" class="btn-primary" style="text-decoration:none; justify-content:center;">
+                        <i class="fas fa-right-to-bracket"></i> Login Karo
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/face-api.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/face.js"></script>
+    <script>
+        function setDot(step) {
+            for (let i = 1; i <= 3; i++) {
+                const d = document.getElementById(`dot${i}`);
+                d.className = 'step-dot' + (i < step ? ' done' : '') + (i === step ? ' active' : '');
+            }
+        }
+
+        function goToLogin() {
+            stopCamera();
+            document.getElementById('reg-face').style.display = 'none';
+            document.getElementById('reg-login').style.display = 'block';
+            setDot(1);
+        }
+
+        function showRegError(msg) {
+            document.getElementById('regErrorText').textContent = msg;
+            document.getElementById('regError').style.display = 'flex';
+            setTimeout(() => { document.getElementById('regError').style.display = 'none'; }, 4000);
+        }
+
+        async function loginForReg() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            if (!username || !password) { showRegError('Username aur password bharo!'); return; }
+
+            try {
+                await apiCall('/face/verify-credentials/', 'POST', { username, password });
+                document.getElementById('reg-login').style.display = 'none';
+                document.getElementById('reg-face').style.display = 'block';
+                setDot(2);
+                initRegFace();
+            } catch (err) {
+                showRegError(err.error || 'Login failed. Username ya password check karo.');
+            }
+        }
+
+        async function initRegFace() {
+            const statusEl  = document.getElementById('regFaceStatus');
+            const captureBtn = document.getElementById('captureBtn');
+            captureBtn.disabled = true;
+
+            await startFaceDetection(
+                (descriptor) => {
+                    capturedDescriptor = descriptor;
+                    statusEl.innerHTML = '<i class="fas fa-circle-check"></i> Chehra detect ho gaya! Register karo.';
+                    statusEl.className = 'face-status success';
+                    captureBtn.disabled = false;
+                },
+                (msg) => {
+                    statusEl.innerHTML = msg
+                        ? `<i class="fas fa-triangle-exclamation"></i> ${msg}`
+                        : '<i class="fas fa-camera"></i> Camera ke saamne apna chehra lao...';
+                    statusEl.className = msg ? 'face-status error' : 'face-status';
+                    captureBtn.disabled = true;
+                }
+            );
+        }
+
+        async function captureAndRegister() {
+            if (!capturedDescriptor) { alert('Pehle apna chehra dikhao!'); return; }
+            try {
+                await apiCall('/face/register/', 'POST', {
+                    face_descriptor: descriptorToArray(capturedDescriptor)
+                });
+                stopCamera();
+                document.getElementById('reg-face').style.display = 'none';
+                document.getElementById('reg-success').style.display = 'block';
+                setDot(3);
+            } catch (err) {
+                alert(err.error || 'Face register nahi ho saka.');
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Tracker — LMT EPLY Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="images/icon-192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .leave-page { max-width: 820px; margin: 0 auto; padding: 28px; }
+
+        /* Balance Cards */
+        .bal-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+        .bal-card  {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 22px;
+            text-align: center; backdrop-filter: blur(10px);
+        }
+        .bal-num { font-size: 2.2rem; font-weight: 800; }
+        .bal-lbl { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+        /* Form Card */
+        .form-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 28px;
+            margin-bottom: 20px; backdrop-filter: blur(10px);
+        }
+        .form-card h3 { font-size: 1rem; font-weight: 600; color: #94a3b8; margin-bottom: 22px; display:flex; align-items:center; gap:8px; }
+
+        /* Leave Type Grid */
+        .leave-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .lt-btn {
+            padding: 10px 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #94a3b8;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .lt-btn:hover {
+            border-color: rgba(99,102,241,0.4);
+            background: rgba(99,102,241,0.08);
+            color: #c4b5fd;
+        }
+
+        .lt-btn.active {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.18);
+            color: #a5b4fc;
+            font-weight: 700;
+        }
+
+        .lt-emoji { display: block; font-size: 1.3rem; margin-bottom: 4px; }
+        .lt-code  { display: inline-block; font-size: 0.65rem; background: rgba(99,102,241,0.2); border-radius: 4px; padding: 1px 5px; margin-top: 2px; color: #818cf8; }
+
+        /* Date Row */
+        .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+        .field-wrap { display: flex; flex-direction: column; gap: 7px; }
+        .field-label { font-size: 0.72rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .field-input {
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .field-input:focus { border-color: rgba(99,102,241,0.6); background: rgba(99,102,241,0.08); }
+        .field-input::placeholder { color: #475569; }
+
+        .field-textarea {
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            resize: vertical;
+            min-height: 80px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .field-textarea:focus { border-color: rgba(99,102,241,0.6); background: rgba(99,102,241,0.08); }
+        .field-textarea::placeholder { color: #475569; }
+
+        .apply-row { display: flex; align-items: center; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+
+        .btn-apply {
+            padding: 13px 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+            transition: all 0.2s;
+        }
+        .btn-apply:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,0.5); }
+
+        .days-calc { font-size: 0.875rem; color: #94a3b8; }
+
+        .err-box {
+            margin-top: 14px; padding: 12px 16px;
+            background: rgba(244,63,94,0.1);
+            border: 1px solid rgba(244,63,94,0.25);
+            color: #fda4af; border-radius: 10px;
+            font-size: 0.82rem; display: none;
+            align-items: center; gap: 10px;
+        }
+
+        /* My Leaves */
+        .leaves-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 24px;
+            margin-bottom: 20px; backdrop-filter: blur(10px);
+        }
+        .leaves-card h3 { font-size: 1rem; font-weight: 600; color: #94a3b8; margin-bottom: 16px; display:flex; align-items:center; gap:8px; }
+
+        .leave-item-card {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
+        }
+        .li-title { font-size: 0.875rem; font-weight: 600; color: #f1f5f9; margin-bottom: 3px; }
+        .li-meta  { font-size: 0.78rem; color: #64748b; }
+
+        .status-pill {
+            padding: 5px 14px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700;
+            white-space: nowrap;
+        }
+        .sp-pending  { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+        .sp-approved { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+        .sp-rejected { background: rgba(244,63,94,0.15);  color: #fda4af; border: 1px solid rgba(244,63,94,0.3); }
+
+        /* Holiday Table */
+        .holiday-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 24px;
+            margin-bottom: 40px; backdrop-filter: blur(10px);
+        }
+        .holiday-card h3 { font-size: 1rem; font-weight: 600; color: #94a3b8; margin-bottom: 16px; display:flex; align-items:center; gap:8px; }
+
+        .h-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .h-table thead th {
+            padding: 10px 14px; text-align: left;
+            background: rgba(255,255,255,0.03);
+            color: #475569; font-size: 0.72rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .h-table tbody td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #94a3b8; }
+        .h-table tbody tr:hover td { background: rgba(255,255,255,0.03); color: #f1f5f9; }
+
+        .day-chip {
+            display: inline-block; padding: 3px 10px;
+            border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+        }
+        .day-week    { background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); }
+        .day-weekend { background: rgba(251,146,60,0.12); color: #fdba74; border: 1px solid rgba(251,146,60,0.25); }
+
+        .empty-msg { text-align: center; padding: 30px; color: #475569; font-size: 0.875rem; }
+
+        @media(max-width:600px) {
+            .leave-type-grid { grid-template-columns: repeat(2,1fr); }
+            .date-row { grid-template-columns: 1fr; }
+            .bal-grid { grid-template-columns: repeat(3,1fr); }
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-brand">
+        <div class="nav-brand-icon"><i class="fas fa-fingerprint"></i></div>
+        <span>LMT EPLY Tracker</span>
+    </div>
+    <div class="nav-center"></div>
+    <div class="nav-right">
+        <a href="dashboard.html" class="btn-secondary" style="text-decoration:none; padding:7px 16px; font-size:0.8rem;">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+        <button class="btn-logout" onclick="doLogout()">
+            <i class="fas fa-arrow-right-from-bracket"></i> Logout
+        </button>
+    </div>
+</nav>
+
+<div class="leave-page">
+
+    <!-- Balance -->
+    <div class="bal-grid">
+        <div class="bal-card" style="border-color:rgba(99,102,241,0.3);">
+            <div class="bal-num" style="color:#a5b4fc;" id="totalLeave">—</div>
+            <div class="bal-lbl">Total Leave</div>
+        </div>
+        <div class="bal-card" style="border-color:rgba(244,63,94,0.3);">
+            <div class="bal-num" style="color:#fda4af;" id="usedLeave">—</div>
+            <div class="bal-lbl">Used</div>
+        </div>
+        <div class="bal-card" style="border-color:rgba(16,185,129,0.3);">
+            <div class="bal-num" style="color:#6ee7b7;" id="remainLeave">—</div>
+            <div class="bal-lbl">Remaining</div>
+        </div>
+    </div>
+
+    <!-- Apply Leave -->
+    <div class="form-card">
+        <h3><i class="fas fa-paper-plane" style="color:#a5b4fc;"></i> Leave Apply Karo</h3>
+
+        <!-- Leave Type Buttons -->
+        <div class="field-label" style="margin-bottom:10px;">Leave Type Chuno</div>
+        <div class="leave-type-grid">
+            <button class="lt-btn" onclick="selectLeave('casual', this)">
+                <span class="lt-emoji">🌴</span> Casual Leave <span class="lt-code">CL</span>
+            </button>
+            <button class="lt-btn" onclick="selectLeave('sick', this)">
+                <span class="lt-emoji">🏥</span> Sick Leave <span class="lt-code">SL</span>
+            </button>
+            <button class="lt-btn" onclick="selectLeave('earned', this)">
+                <span class="lt-emoji">⭐</span> Earned Leave <span class="lt-code">EL</span>
+            </button>
+            <button class="lt-btn" onclick="selectLeave('maternity', this)">
+                <span class="lt-emoji">🤱</span> Maternity Leave
+            </button>
+            <button class="lt-btn" onclick="selectLeave('paternity', this)">
+                <span class="lt-emoji">👨‍👶</span> Paternity Leave
+            </button>
+            <button class="lt-btn" onclick="selectLeave('marriage', this)">
+                <span class="lt-emoji">💍</span> Marriage Leave
+            </button>
+            <button class="lt-btn" onclick="selectLeave('bereavement', this)">
+                <span class="lt-emoji">🕊️</span> Bereavement Leave
+            </button>
+            <button class="lt-btn" onclick="selectLeave('comp_off', this)">
+                <span class="lt-emoji">🔄</span> Comp Off <span class="lt-code">CO</span>
+            </button>
+            <button class="lt-btn" onclick="selectLeave('wfh', this)">
+                <span class="lt-emoji">🏠</span> Work From Home <span class="lt-code">WFH</span>
+            </button>
+            <button class="lt-btn" onclick="selectLeave('half_day', this)">
+                <span class="lt-emoji">⏰</span> Half Day
+            </button>
+            <button class="lt-btn" onclick="selectLeave('unpaid', this)">
+                <span class="lt-emoji">💸</span> Unpaid Leave <span class="lt-code">LWP</span>
+            </button>
+        </div>
+        <input type="hidden" id="leaveType" value="">
+
+        <!-- Dates -->
+        <div class="date-row">
+            <div class="field-wrap">
+                <label class="field-label">From Date</label>
+                <input type="date" id="fromDate" class="field-input">
+            </div>
+            <div class="field-wrap">
+                <label class="field-label">To Date</label>
+                <input type="date" id="toDate" class="field-input">
+            </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="field-wrap" style="margin-bottom:0;">
+            <label class="field-label">Reason</label>
+            <textarea id="leaveReason" class="field-textarea" placeholder="Leave kyon chahiye... (minimum 10 characters)"></textarea>
+        </div>
+
+        <div class="apply-row">
+            <button class="btn-apply" onclick="applyLeave()">
+                <i class="fas fa-paper-plane"></i> Apply Karo
+            </button>
+            <span class="days-calc" id="leaveCalc"></span>
+        </div>
+
+        <div class="err-box" id="leaveError">
+            <i class="fas fa-circle-exclamation"></i>
+            <span id="leaveErrorText"></span>
+        </div>
+    </div>
+
+    <!-- My Leave Requests -->
+    <div class="leaves-card">
+        <h3><i class="fas fa-list-check" style="color:#a5b4fc;"></i> Meri Leave Requests</h3>
+        <div id="myLeavesList">
+            <div class="empty-msg"><i class="fas fa-spinner fa-spin"></i></div>
+        </div>
+    </div>
+
+    <!-- Holiday List -->
+    <div class="holiday-card">
+        <h3><i class="fas fa-calendar-days" style="color:#fb923c;"></i> Public Holidays 2026</h3>
+        <div style="overflow-x:auto;">
+            <table class="h-table">
+                <thead>
+                    <tr><th>#</th><th>Date</th><th>Day</th><th>Holiday</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>1st January</td><td><span class="day-chip day-week">Thursday</span></td><td>🎊 New Year</td></tr>
+                    <tr><td>2</td><td>14th January</td><td><span class="day-chip day-week">Wednesday</span></td><td>🌾 Pongal</td></tr>
+                    <tr><td>3</td><td>26th January</td><td><span class="day-chip day-week">Monday</span></td><td>🇮🇳 Republic Day</td></tr>
+                    <tr><td>4</td><td>15th February</td><td><span class="day-chip day-weekend">Sunday</span></td><td>🕉️ Maha Shivaratri</td></tr>
+                    <tr><td>5</td><td>3rd March</td><td><span class="day-chip day-week">Tuesday</span></td><td>🎨 Holi</td></tr>
+                    <tr><td>6</td><td>19th March</td><td><span class="day-chip day-week">Thursday</span></td><td>🌸 Ugadi / Gudi Padwa</td></tr>
+                    <tr><td>7</td><td>21st March</td><td><span class="day-chip day-weekend">Saturday</span></td><td>☪️ Ramzan Eid</td></tr>
+                    <tr><td>8</td><td>3rd April</td><td><span class="day-chip day-week">Friday</span></td><td>✝️ Good Friday</td></tr>
+                    <tr><td>9</td><td>5th April</td><td><span class="day-chip day-weekend">Sunday</span></td><td>✝️ Easter Day</td></tr>
+                    <tr><td>10</td><td>1st May</td><td><span class="day-chip day-week">Friday</span></td><td>🏭 Maharashtra Day</td></tr>
+                    <tr><td>11</td><td>27th May</td><td><span class="day-chip day-week">Wednesday</span></td><td>☪️ Bakrid / Eid ul-Adha</td></tr>
+                    <tr><td>12</td><td>15th August</td><td><span class="day-chip day-weekend">Saturday</span></td><td>🇮🇳 Independence Day</td></tr>
+                    <tr><td>13</td><td>26th August</td><td><span class="day-chip day-week">Wednesday</span></td><td>🌺 Onam</td></tr>
+                    <tr><td>14</td><td>28th August</td><td><span class="day-chip day-week">Friday</span></td><td>🪢 Raksha Bandhan</td></tr>
+                    <tr><td>15</td><td>14th September</td><td><span class="day-chip day-week">Monday</span></td><td>🐘 Ganesh Chaturthi</td></tr>
+                    <tr><td>16</td><td>2nd October</td><td><span class="day-chip day-week">Friday</span></td><td>🕊️ Gandhi Jayanti</td></tr>
+                    <tr><td>17</td><td>20th October</td><td><span class="day-chip day-week">Tuesday</span></td><td>🏹 Dussehra</td></tr>
+                    <tr><td>18</td><td>1st November</td><td><span class="day-chip day-weekend">Sunday</span></td><td>🌟 Karnataka Day</td></tr>
+                    <tr><td>19</td><td>10th November</td><td><span class="day-chip day-week">Tuesday</span></td><td>🪔 Diwali</td></tr>
+                    <tr><td>20</td><td>25th December</td><td><span class="day-chip day-week">Friday</span></td><td>🎄 Christmas Day</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:12px; padding:12px 16px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.15); border-radius:10px; font-size:0.8rem; color:#a5b4fc;">
+            <i class="fas fa-circle-info" style="margin-right:6px;"></i>
+            Total <strong>20 Public Holidays</strong> in 2026 &nbsp;|&nbsp;
+            <span style="color:#fdba74;">🟠 Weekend holidays</span> are marked separately.
+        </div>
+    </div>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+const LEAVE_LABELS = {
+    casual:'🌴 Casual Leave', sick:'🏥 Sick Leave', earned:'⭐ Earned Leave',
+    maternity:'🤱 Maternity Leave', paternity:'👨‍👶 Paternity Leave',
+    marriage:'💍 Marriage Leave', bereavement:'🕊️ Bereavement Leave',
+    comp_off:'🔄 Comp Off', wfh:'🏠 WFH', half_day:'⏰ Half Day',
+    unpaid:'💸 Unpaid (LWP)'
+};
+
+let selectedLeaveType = '';
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const auth = await apiCall('/auth/check/');
+        if (!auth.authenticated) { window.location.href = 'login.html'; return; }
+    } catch { window.location.href = 'login.html'; return; }
+
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('fromDate').min = today;
+    document.getElementById('toDate').min   = today;
+    document.getElementById('fromDate').addEventListener('change', calcDays);
+    document.getElementById('toDate').addEventListener('change', calcDays);
+
+    loadLeaveData();
+});
+
+// ── Leave Type Select ──
+function selectLeave(type, btn) {
+    selectedLeaveType = type;
+    document.getElementById('leaveType').value = type;
+    document.querySelectorAll('.lt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+// ── Calc Days ──
+function calcDays() {
+    const f = document.getElementById('fromDate').value;
+    const t = document.getElementById('toDate').value;
+    if (f && t) {
+        const days = Math.floor((new Date(t) - new Date(f)) / 86400000) + 1;
+        document.getElementById('leaveCalc').textContent = days > 0 ? `📅 ${days} din` : '';
+    }
+}
+
+// ── Load Leave Data ──
+async function loadLeaveData() {
+    try {
+        const d = await apiCall('/leave/');
+        document.getElementById('totalLeave').textContent  = d.balance.total;
+        document.getElementById('usedLeave').textContent   = d.balance.used;
+        document.getElementById('remainLeave').textContent = d.balance.remaining;
+
+        const el = document.getElementById('myLeavesList');
+        if (!d.leaves.length) {
+            el.innerHTML = '<div class="empty-msg"><i class="fas fa-calendar-xmark" style="display:block;font-size:2rem;margin-bottom:8px;"></i>Koi leave request nahi.</div>';
+            return;
+        }
+        el.innerHTML = d.leaves.map(l => `
+            <div class="leave-item-card">
+                <div>
+                    <div class="li-title">
+                        ${LEAVE_LABELS[l.leave_type] || l.leave_type}
+                        &nbsp;·&nbsp; ${l.from_date} → ${l.to_date}
+                        <span style="color:#475569; font-size:0.78rem;">(${l.total_days} din)</span>
+                    </div>
+                    <div class="li-meta">${l.reason}${l.review_note ? ` · <em style="color:#818cf8">${l.review_note}</em>` : ''}</div>
+                </div>
+                <span class="status-pill sp-${l.status}">${l.status}</span>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Leave load error:', err);
+        showToast('Leave data load nahi hua.', 'error');
+    }
+}
+
+// ── Apply Leave ──
+async function applyLeave() {
+    const leaveType = document.getElementById('leaveType').value;
+    const fromDate  = document.getElementById('fromDate').value;
+    const toDate    = document.getElementById('toDate').value;
+    const reason    = document.getElementById('leaveReason').value.trim();
+    const errDiv    = document.getElementById('leaveError');
+    const errTxt    = document.getElementById('leaveErrorText');
+
+    errDiv.style.display = 'none';
+
+    if (!leaveType) {
+        errTxt.textContent = '⚠️ Pehle leave type select karo!';
+        errDiv.style.display = 'flex'; return;
+    }
+    if (!fromDate) {
+        errTxt.textContent = '⚠️ From date select karo!';
+        errDiv.style.display = 'flex'; return;
+    }
+    if (!toDate) {
+        errTxt.textContent = '⚠️ To date select karo!';
+        errDiv.style.display = 'flex'; return;
+    }
+    if (new Date(toDate) < new Date(fromDate)) {
+        errTxt.textContent = '⚠️ To date, from date se pehle nahi ho sakti!';
+        errDiv.style.display = 'flex'; return;
+    }
+    if (!reason) {
+        errTxt.textContent = '⚠️ Reason likhna zaroori hai!';
+        errDiv.style.display = 'flex'; return;
+    }
+
+    try {
+        const res = await apiCall('/leave/', 'POST', { leave_type: leaveType, from_date: fromDate, to_date: toDate, reason });
+        showToast(`✅ Leave apply ho gayi — ${res.total_days} din!`, 'success');
+        // Reset form
+        document.getElementById('fromDate').value        = '';
+        document.getElementById('toDate').value          = '';
+        document.getElementById('leaveReason').value     = '';
+        document.getElementById('leaveCalc').textContent = '';
+        document.getElementById('leaveType').value       = '';
+        document.querySelectorAll('.lt-btn').forEach(b => b.classList.remove('active'));
+        selectedLeaveType = '';
+        errDiv.style.display = 'none';
+        loadLeaveData();
+    } catch (err) {
+        errTxt.textContent = err.error || 'Leave apply nahi ho saka. Dobara try karo.';
+        errDiv.style.display = 'flex';
+        console.error('Apply error:', err);
+    }
+}
+
+async function doLogout() {
+    await apiCall('/auth/logout/', 'POST').catch(() => {});
+    window.location.href = 'login.html';
+}
+</script>
+</body>
+</html>
+

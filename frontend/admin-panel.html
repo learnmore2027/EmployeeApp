@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — LMT EPLY Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+
+<nav class="navbar">
+    <div class="nav-brand">
+        <div class="nav-brand-icon"><i class="fas fa-fingerprint"></i></div>
+        <span>LMT EPLY Tracker</span>
+    </div>
+    <div class="nav-center" style="display:flex; gap:8px;">
+        <a href="employee-view.html" class="nav-tab-btn">👤 My Attendance</a>
+        <span class="nav-tab-btn active">⚙️ Admin Panel</span>
+    </div>
+    <div class="nav-right">
+        <span id="adminNavName" style="color:#a5b4fc; font-size:0.85rem; font-weight:600;"></span>
+        <button class="btn-logout" onclick="adminLogout()"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+</nav>
+
+<div class="dashboard-container">
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('live')"><i class="fas fa-circle-dot"></i> Live Attendance</button>
+        <button class="tab-btn" onclick="switchTab('violations')"><i class="fas fa-triangle-exclamation"></i> Break Violations</button>
+        <button class="tab-btn" onclick="switchTab('leaves')"><i class="fas fa-calendar-check"></i> Leave Requests</button>
+        <button class="tab-btn" onclick="switchTab('office')"><i class="fas fa-location-dot"></i> Office Location</button>
+    </div>
+
+    <!-- ── LIVE ATTENDANCE ── -->
+    <div id="tab-live" class="tab-content active">
+        <div class="admin-summary-grid" id="liveSummary">
+            <div class="admin-stat-card green"><div class="asn" id="livePresent">0</div><div class="asl">Present</div></div>
+            <div class="admin-stat-card orange"><div class="asn" id="liveBreak">0</div><div class="asl">On Break</div></div>
+            <div class="admin-stat-card red"><div class="asn" id="liveAbsent">0</div><div class="asl">Absent</div></div>
+            <div class="admin-stat-card blue"><div class="asn" id="liveLeave">0</div><div class="asl">On Leave</div></div>
+        </div>
+
+        <div class="admin-sections">
+            <div class="admin-section">
+                <h4><span class="dot green"></span> Present (<span id="presentCount">0</span>)</h4>
+                <div id="presentList" class="emp-list"></div>
+            </div>
+            <div class="admin-section">
+                <h4><span class="dot orange"></span> On Break (<span id="breakCount">0</span>)</h4>
+                <div id="breakList" class="emp-list"></div>
+            </div>
+            <div class="admin-section">
+                <h4><span class="dot red"></span> Absent (<span id="absentCount">0</span>)</h4>
+                <div id="absentList" class="emp-list"></div>
+            </div>
+        </div>
+        <button class="btn-refresh" onclick="loadLive()"><i class="fas fa-rotate"></i> Refresh</button>
+    </div>
+
+    <!-- ── BREAK VIOLATIONS ── -->
+    <div id="tab-violations" class="tab-content">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+            <label style="color:var(--text-muted); font-size:0.875rem;">Last:</label>
+            <select id="violDays" onchange="loadViolations()" style="padding:8px 14px; background:var(--bg-card); border:1px solid var(--glass-border); border-radius:10px; color:var(--text); font-family:inherit;">
+                <option value="7">7 days</option>
+                <option value="15">15 days</option>
+                <option value="30">30 days</option>
+            </select>
+            <span id="violCount" style="color:var(--text-muted); font-size:0.85rem;"></span>
+        </div>
+        <div id="violationsList"></div>
+    </div>
+
+    <!-- ── LEAVE REQUESTS ── -->
+    <div id="tab-leaves" class="tab-content">
+        <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+            <button class="leave-filter-btn active" onclick="filterLeaves('pending', this)">Pending</button>
+            <button class="leave-filter-btn" onclick="filterLeaves('approved', this)">Approved</button>
+            <button class="leave-filter-btn" onclick="filterLeaves('rejected', this)">Rejected</button>
+        </div>
+        <div id="leavesList"></div>
+    </div>
+
+    <!-- ── OFFICE LOCATION ── -->
+    <div id="tab-office" class="tab-content">
+        <div class="office-form-card">
+            <h3><i class="fas fa-location-dot" style="color:#a5b4fc;"></i> Office Location Set Karo</h3>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:20px;">
+                Employees sirf is location ke <strong>100 meter</strong> ke andar login kar payenge.
+            </p>
+            <div id="currentOffice" style="margin-bottom:20px;"></div>
+            <div class="input-group">
+                <label class="input-label">Office Name</label>
+                <div class="input-wrap"><i class="fas fa-building"></i><input type="text" id="officeName" value="Main Office"></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                <div class="input-group">
+                    <label class="input-label">Latitude</label>
+                    <div class="input-wrap"><i class="fas fa-map-pin"></i><input type="number" step="any" id="officeLat" placeholder="28.6139"></div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Longitude</label>
+                    <div class="input-wrap"><i class="fas fa-map-pin"></i><input type="number" step="any" id="officeLon" placeholder="77.2090"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Radius (meters)</label>
+                <div class="input-wrap"><i class="fas fa-circle-dot"></i><input type="number" id="officeRadius" value="100"></div>
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button class="btn-primary" style="width:auto; padding:12px 24px;" onclick="useMyLocation()">
+                    <i class="fas fa-location-crosshairs"></i> Meri Location Use Karo
+                </button>
+                <button class="btn-primary" style="width:auto; padding:12px 24px; background:linear-gradient(135deg,#10b981,#059669);" onclick="saveOffice()">
+                    <i class="fas fa-floppy-disk"></i> Save Karo
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const auth = await apiCall('/auth/check/');
+        if (!auth.authenticated) {
+            window.location.href = 'login.html';
+            return;
+        }
+        if (!auth.is_admin) {
+            window.location.href = 'dashboard.html';
+            return;
+        }
+        // Show admin name in navbar
+        const navName = document.getElementById('adminNavName');
+        if (navName) navName.textContent = auth.user.name || 'Admin';
+        
+        loadLive();
+        loadOffice();
+    } catch (e) {
+        console.error('Admin panel init error:', e);
+        window.location.href = 'login.html';
+    }
+});
+
+function switchTab(name, clickedBtn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`tab-${name}`).classList.add('active');
+    clickedBtn.classList.add('active');
+    if (name === 'violations') loadViolations();
+    if (name === 'leaves') loadLeaves('pending');
+}
+
+// ── LIVE ──────────────────────────────────────────────────────────────────────
+async function loadLive() {
+    try {
+        const d = await apiCall('/attendance/live/');
+        document.getElementById('livePresent').textContent = d.summary.present;
+        document.getElementById('liveBreak').textContent   = d.summary.on_break;
+        document.getElementById('liveAbsent').textContent  = d.summary.absent;
+        document.getElementById('liveLeave').textContent   = d.summary.on_leave;
+
+        renderEmpList('presentList', 'presentCount', d.present, 'present');
+        renderEmpList('breakList',   'breakCount',   d.on_break, 'break');
+        renderEmpList('absentList',  'absentCount',  d.absent,  'absent');
+    } catch (e) { showToast('Live data load failed.', 'error'); }
+}
+
+function renderEmpList(listId, countId, arr, type) {
+    document.getElementById(countId).textContent = arr.length;
+    const el = document.getElementById(listId);
+    if (!arr.length) { el.innerHTML = '<div class="emp-empty">Koi nahi</div>'; return; }
+    el.innerHTML = arr.map(e => `
+        <div class="emp-chip">
+            <div class="emp-avatar">${e.name.charAt(0)}</div>
+            <div class="emp-info">
+                <span class="emp-name">${e.name}</span>
+                <span class="emp-meta">${e.employee_id} · ${e.department || '—'}</span>
+            </div>
+            ${type === 'present' ? `<span class="emp-time">${e.login_time}</span>` : ''}
+            ${type === 'break' ? `<span class="emp-time" style="color:#fdba74;">${e.break_type === 'geo' ? '📍 Geo' : '✋ Manual'}</span>` : ''}
+            ${e.break_violation ? `<span class="viol-tag">+${e.violation_minutes}m</span>` : ''}
+        </div>
+    `).join('');
+}
+
+// ── VIOLATIONS ────────────────────────────────────────────────────────────────
+async function loadViolations() {
+    const days = document.getElementById('violDays').value;
+    try {
+        const d = await apiCall(`/violations/?days=${days}`);
+        document.getElementById('violCount').textContent = `${d.total} violations found`;
+        const el = document.getElementById('violationsList');
+        if (!d.violations.length) {
+            el.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>Koi violation nahi!</p></div>';
+            return;
+        }
+        el.innerHTML = d.violations.map(v => `
+            <div class="viol-card">
+                <div class="viol-header">
+                    <div>
+                        <span class="viol-name">${v.employee}</span>
+                        <span class="viol-meta">${v.employee_id} · ${v.department}</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="viol-date">${new Date(v.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}</div>
+                        <div class="viol-excess">+${v.excess_minutes} min extra</div>
+                    </div>
+                </div>
+                <div class="viol-breaks">
+                    ${v.breaks.map(b => `
+                        <span class="break-chip ${b.type === 'geo' ? 'geo' : ''}">
+                            ${b.start} – ${b.end} (${Math.round(b.duration)}m) ${b.type === 'geo' ? '📍' : '✋'}
+                        </span>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    } catch { showToast('Violations load failed.', 'error'); }
+}
+
+// ── LEAVES ────────────────────────────────────────────────────────────────────
+async function loadLeaves(status) {
+    try {
+        const d = await apiCall(`/leave/admin/?status=${status}`);
+        const el = document.getElementById('leavesList');
+        if (!d.leaves.length) {
+            el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-xmark"></i><p>Koi leave request nahi.</p></div>';
+            return;
+        }
+        el.innerHTML = d.leaves.map(l => `
+            <div class="leave-admin-card">
+                <div class="leave-admin-info">
+                    <div class="emp-avatar">${l.employee.charAt(0)}</div>
+                    <div>
+                        <div class="emp-name">${l.employee} <span style="color:var(--text-dim); font-size:0.78rem;">${l.employee_id}</span></div>
+                        <div class="emp-meta">${l.department} · Applied: ${l.applied_on}</div>
+                    </div>
+                </div>
+                <div class="leave-admin-details">
+                    <span class="leave-type-badge">${{casual:'Casual',sick:'Sick',earned:'Earned',unpaid:'Unpaid'}[l.leave_type]}</span>
+                    <span class="leave-dates">${l.from_date} → ${l.to_date} (${l.total_days}d)</span>
+                    <span class="leave-reason">"${l.reason}"</span>
+                </div>
+                ${status === 'pending' ? `
+                <div class="leave-admin-actions">
+                    <button class="btn-approve" onclick="actionLeave(${l.id}, 'approved')"><i class="fas fa-check"></i> Approve</button>
+                    <button class="btn-reject"  onclick="actionLeave(${l.id}, 'rejected')"><i class="fas fa-xmark"></i> Reject</button>
+                </div>` : `<span class="badge badge-${l.status === 'approved' ? 'present' : 'absent'}">${l.status}</span>`}
+            </div>
+        `).join('');
+    } catch { showToast('Leaves load failed.', 'error'); }
+}
+
+function filterLeaves(status, btn) {
+    document.querySelectorAll('.leave-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadLeaves(status);
+}
+
+async function actionLeave(id, action) {
+    try {
+        await apiCall(`/leave/${id}/action/`, 'POST', { action });
+        showToast(`Leave ${action}!`, action === 'approved' ? 'success' : 'warning');
+        loadLeaves('pending');
+    } catch (e) { showToast(e.error || 'Action failed.', 'error'); }
+}
+
+// ── OFFICE ────────────────────────────────────────────────────────────────────
+async function loadOffice() {
+    try {
+        const d = await apiCall('/geo/office/');
+        if (d.office) {
+            document.getElementById('currentOffice').innerHTML = `
+                <div class="current-office-info">
+                    <i class="fas fa-location-dot"></i>
+                    <span><strong>${d.office.name}</strong> — ${d.office.latitude.toFixed(4)}, ${d.office.longitude.toFixed(4)} (${d.office.radius_meters}m)</span>
+                </div>`;
+            document.getElementById('officeLat').value = d.office.latitude;
+            document.getElementById('officeLon').value = d.office.longitude;
+            document.getElementById('officeRadius').value = d.office.radius_meters;
+            document.getElementById('officeName').value = d.office.name;
+        }
+    } catch {}
+}
+
+async function useMyLocation() {
+    try {
+        const pos = await getPosition();
+        document.getElementById('officeLat').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('officeLon').value = pos.coords.longitude.toFixed(6);
+        showToast('📍 Current location set!', 'success');
+    } catch { showToast('GPS permission do.', 'error'); }
+}
+
+async function saveOffice() {
+    const payload = {
+        name: document.getElementById('officeName').value,
+        latitude: document.getElementById('officeLat').value,
+        longitude: document.getElementById('officeLon').value,
+        radius_meters: document.getElementById('officeRadius').value,
+    };
+    if (!payload.latitude || !payload.longitude) { showToast('Coordinates required!', 'error'); return; }
+    try {
+        await apiCall('/geo/office/', 'POST', payload);
+        showToast('Office location saved!', 'success');
+        loadOffice();
+    } catch (e) { showToast(e.error || 'Save failed.', 'error'); }
+}
+
+async function adminLogout() {
+    await apiCall('/auth/logout/', 'POST').catch(() => {});
+    window.location.href = 'login.html';
+}
+</script>
+</body>
+</html>
+
