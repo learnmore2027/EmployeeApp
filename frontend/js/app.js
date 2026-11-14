@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8000/api';
+const API_BASE = 'http://192.168.1.3:8000/api';
 
 function getCookie(name) {
     let v = null;

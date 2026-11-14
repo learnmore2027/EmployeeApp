@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -12,179 +13,317 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="dashboard-body">
 
-<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-    <div class="nav-brand">
-        <div class="nav-brand-icon"><i class="fas fa-fingerprint"></i></div>
-        <span>LMT EPLY Tracker</span>
-    </div>
-    <div class="nav-center">
-        <span class="nav-date" id="currentDate"></span>
-        <span class="nav-time" id="currentTime"></span>
-    </div>
-    <div class="nav-right">
-        <!-- Admin Panel link — sirf admin ko dikhega -->
-        <a href="admin-panel.html" id="adminLink" class="nav-tab-btn" style="display:none;">
-            <i class="fas fa-shield-halved"></i> Admin Panel
-        </a>
-        <div class="nav-employee">
-            <div class="avatar" id="navAvatar">A</div>
-            <div class="nav-info">
-                <span class="nav-name" id="navName">Loading...</span>
-                <span class="nav-dept" id="navDept">—</span>
-            </div>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="nav-brand-icon"><i class="fas fa-fingerprint"></i></div>
+            <span>LMT EPLY Tracker</span>
         </div>
-        <button class="btn-logout" onclick="handleLogout()">
-            <i class="fas fa-arrow-right-from-bracket"></i> Logout
-        </button>
-    </div>
-</nav>
-
-<div class="dashboard-container">
-
-    <!-- Welcome -->
-    <div class="welcome-banner">
-        <div class="welcome-text">
-            <h2 id="welcomeMsg">Good Morning!</h2>
-            <p id="welcomeSubtitle">Aaj bhi accha kaam karo 💪</p>
+        <div class="nav-center">
+            <span class="nav-date" id="currentDate"></span>
+            <span class="nav-time" id="currentTime"></span>
         </div>
-        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-            <div class="shift-badge"><i class="fas fa-briefcase"></i> Shift: 8 Hrs | Break: 1 Hr</div>
-            <a href="leave.html" class="shift-badge" style="text-decoration:none; color:inherit; cursor:pointer;">
-                <i class="fas fa-calendar-check" style="color:#a5b4fc;"></i>
-                Leave: <span id="leaveBalance">—</span>
+        <div class="nav-right">
+            <!-- Admin Panel link — sirf admin ko dikhega -->
+            <a href="admin-panel.html" id="adminLink" class="nav-tab-btn" style="display:none;">
+                <i class="fas fa-shield-halved"></i> Admin Panel
             </a>
-        </div>
-    </div>
-
-    <!-- Violation Banner -->
-    <div id="violationBanner" class="violation-banner" style="display:none;"></div>
-
-    <!-- Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-right-to-bracket"></i></div>
-            <div class="stat-info"><span class="stat-label">Login Time</span><span class="stat-value" id="loginTimeDisplay">—</span></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
-            <div class="stat-info"><span class="stat-label">Work Hours</span><span class="stat-value" id="workHoursDisplay">0m</span></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon orange"><i class="fas fa-mug-hot"></i></div>
-            <div class="stat-info"><span class="stat-label">Break Used</span><span class="stat-value" id="breakTimeDisplay">0m / 60m</span></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon purple"><i class="fas fa-chart-pie"></i></div>
-            <div class="stat-info"><span class="stat-label">Status</span><span class="stat-value" id="statusDisplay"><span class="badge badge-present">Present</span></span></div>
-        </div>
-    </div>
-
-    <!-- Main Panel -->
-    <div class="main-panel">
-
-        <!-- Timer Card -->
-        <div class="timer-card">
-            <div class="card-header">
-                <div class="card-header-icon"><i class="fas fa-stopwatch"></i></div>
-                <h3>Shift Timer</h3>
-                <!-- Geo Status -->
-                <div id="geoStatus" class="geo-status" style="margin-left:auto;"></div>
-            </div>
-
-            <div class="big-timer" id="shiftTimer">00:00:00</div>
-
-            <div class="progress-section">
-                <div class="progress-label"><span>Shift Progress</span><span id="progressPercent">0%</span></div>
-                <div class="progress-track"><div class="progress-fill" id="shiftProgress" style="width:0%"></div></div>
-                <div class="progress-milestones"><span>0h</span><span>4h</span><span>8h</span></div>
-            </div>
-
-            <div class="progress-section">
-                <div class="progress-label">
-                    <span><i class="fas fa-mug-hot" style="color:#fdba74;margin-right:4px;"></i>Break</span>
-                    <span id="breakPercent">0%</span>
-                </div>
-                <div class="progress-track thin"><div class="progress-fill orange" id="breakProgress" style="width:0%"></div></div>
-            </div>
-
-            <!-- Break Active Banner -->
-            <div id="breakStatusBanner" class="break-banner" style="display:none;">
-                <i class="fas fa-mug-hot fa-beat"></i>
-                <div>
-                    <div>Break chal rahi hai — <strong id="breakTimer">00:00</strong></div>
-                    <small id="breakTypeBadge" style="opacity:0.7; font-size:0.75rem;"></small>
+            <div class="nav-employee">
+                <div class="avatar" id="navAvatar">A</div>
+                <div class="nav-info">
+                    <span class="nav-name" id="navName">Loading...</span>
+                    <span class="nav-dept" id="navDept">—</span>
                 </div>
             </div>
+            <button class="btn-logout" onclick="handleLogout()">
+                <i class="fas fa-arrow-right-from-bracket"></i> Logout
+            </button>
+            <button class="btn-logout" onclick="openFaceLogout()" style="background:rgba(34,139,34,0.1); color:#4ade80; border-color:rgba(34,139,34,0.25); margin-left:4px;">
+                <i class="fas fa-camera"></i> Face Logout
+            </button>
+        </div>
+    </nav>
 
-            <div class="action-buttons">
-                <button class="btn-break-start" id="breakStartBtn" onclick="startBreak()">
-                    <i class="fas fa-mug-hot"></i> Start Break
+    <div class="dashboard-container">
+
+        <!-- Welcome -->
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                <h2 id="welcomeMsg">Good Morning!</h2>
+                <p id="welcomeSubtitle">Aaj bhi accha kaam karo 💪</p>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <div class="shift-badge"><i class="fas fa-briefcase"></i> Shift: 8 Hrs | Break: 1 Hr</div>
+                <a href="leave.html" class="shift-badge" style="text-decoration:none; color:inherit; cursor:pointer;">
+                    <i class="fas fa-calendar-check" style="color:#a5b4fc;"></i>
+                    Leave: <span id="leaveBalance">—</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Violation Banner -->
+        <div id="violationBanner" class="violation-banner" style="display:none;"></div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-right-to-bracket"></i></div>
+                <div class="stat-info"><span class="stat-label">Login Time</span><span class="stat-value" id="loginTimeDisplay">—</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
+                <div class="stat-info"><span class="stat-label">Work Hours</span><span class="stat-value" id="workHoursDisplay">0m</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="fas fa-mug-hot"></i></div>
+                <div class="stat-info"><span class="stat-label">Break Used</span><span class="stat-value" id="breakTimeDisplay">0m / 60m</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-chart-pie"></i></div>
+                <div class="stat-info"><span class="stat-label">Status</span><span class="stat-value" id="statusDisplay"><span class="badge badge-present">Present</span></span></div>
+            </div>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="main-panel">
+
+            <!-- Timer Card -->
+            <div class="timer-card">
+                <div class="card-header">
+                    <div class="card-header-icon"><i class="fas fa-stopwatch"></i></div>
+                    <h3>Shift Timer</h3>
+                    <!-- Geo Status -->
+                    <div id="geoStatus" class="geo-status" style="margin-left:auto;"></div>
+                </div>
+
+                <div class="big-timer" id="shiftTimer">00:00:00</div>
+
+                <div class="progress-section">
+                    <div class="progress-label"><span>Shift Progress</span><span id="progressPercent">0%</span></div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="shiftProgress" style="width:0%"></div>
+                    </div>
+                    <div class="progress-milestones"><span>0h</span><span>4h</span><span>8h</span></div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-label">
+                        <span><i class="fas fa-mug-hot" style="color:#fdba74;margin-right:4px;"></i>Break</span>
+                        <span id="breakPercent">0%</span>
+                    </div>
+                    <div class="progress-track thin">
+                        <div class="progress-fill orange" id="breakProgress" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <!-- Break Active Banner -->
+                <div id="breakStatusBanner" class="break-banner" style="display:none;">
+                    <i class="fas fa-mug-hot fa-beat"></i>
+                    <div>
+                        <div>Break chal rahi hai — <strong id="breakTimer">00:00</strong></div>
+                        <small id="breakTypeBadge" style="opacity:0.7; font-size:0.75rem;"></small>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-break-start" id="breakStartBtn" onclick="startBreak()">
+                        <i class="fas fa-mug-hot"></i> Start Break
+                    </button>
+                    <button class="btn-break-end" id="breakEndBtn" onclick="endBreak()" style="display:none;">
+                        <i class="fas fa-play"></i> End Break
+                    </button>
+                </div>
+            </div>
+
+            <!-- History Card -->
+            <div class="history-card">
+                <div class="card-header">
+                    <div class="card-header-icon"><i class="fas fa-calendar-days"></i></div>
+                    <h3>Attendance History</h3>
+                </div>
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Login</th>
+                                <th>Logout</th>
+                                <th>Hours</th>
+                                <th>Break</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr>
+                                <td colspan="6" class="loading-row"><i class="fas fa-spinner fa-spin"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div id="logoutModal" class="modal" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fas fa-arrow-right-from-bracket"></i></div>
+            <h3>Confirm Logout?</h3>
+            <p>Your shift summary will be saved.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()"><i class="fas fa-xmark"></i> Cancel</button>
+                <button class="btn-danger" onclick="confirmLogout()"><i class="fas fa-check"></i> Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div id="summaryModal" class="modal" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-icon success"><i class="fas fa-circle-check"></i></div>
+            <h3>Aaj Ka Din Khatam! 🎉</h3>
+            <div id="summaryContent" class="summary-content"></div>
+            <button class="btn-primary" onclick="window.location.href='login.html'">
+                <i class="fas fa-home"></i> Go to Login
+            </button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/face-api.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
+
+    <!-- FACE LOGOUT MODAL -->
+    <div id="faceLogoutModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
+        <div style="background:#222; border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:30px; max-width:380px; width:90%; text-align:center; box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+            <h3 style="color:#f1f5f9; font-size:1.1rem; font-weight:700; margin-bottom:6px;"><i class="fas fa-camera" style="color:#4ade80;"></i> Face Logout</h3>
+            <p style="color:#a0aab4; font-size:0.82rem; margin-bottom:16px;">Camera ke saamne aao — face detect hote hi logout ho jayega!</p>
+
+            <div style="position:relative; border-radius:14px; overflow:hidden; background:#000; margin-bottom:14px; display:none;" id="faceLogoutCamWrap">
+                <video id="faceLogoutVideo" autoplay muted playsinline style="width:100%; display:block; border-radius:14px;"></video>
+                <div style="position:absolute; inset:0; pointer-events:none;">
+                    <div style="position:absolute; top:10px; left:10px; width:20px; height:20px; border-top:3px solid #4ade80; border-left:3px solid #4ade80; border-radius:4px 0 0 0;"></div>
+                    <div style="position:absolute; top:10px; right:10px; width:20px; height:20px; border-top:3px solid #4ade80; border-right:3px solid #4ade80; border-radius:0 4px 0 0;"></div>
+                    <div style="position:absolute; bottom:10px; left:10px; width:20px; height:20px; border-bottom:3px solid #4ade80; border-left:3px solid #4ade80; border-radius:0 0 0 4px;"></div>
+                    <div style="position:absolute; bottom:10px; right:10px; width:20px; height:20px; border-bottom:3px solid #4ade80; border-right:3px solid #4ade80; border-radius:0 0 4px 0;"></div>
+                </div>
+            </div>
+
+            <div id="faceLogoutStatus" style="padding:12px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
+                <i class="fas fa-camera"></i> Camera shuru karne ke liye Start dabao
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeFaceLogout()" class="btn-secondary" style="flex:1;">Cancel</button>
+                <button onclick="startFaceLogout()" id="faceLogoutStartBtn" class="btn-primary" style="flex:1; background:linear-gradient(135deg,#228B22,#1a6b1a);">
+                    <i class="fas fa-camera"></i> Start
                 </button>
-                <button class="btn-break-end" id="breakEndBtn" onclick="endBreak()" style="display:none;">
-                    <i class="fas fa-play"></i> End Break
-                </button>
             </div>
         </div>
-
-        <!-- History Card -->
-        <div class="history-card">
-            <div class="card-header">
-                <div class="card-header-icon"><i class="fas fa-calendar-days"></i></div>
-                <h3>Attendance History</h3>
-            </div>
-            <div class="history-table-wrapper">
-                <table class="history-table">
-                    <thead>
-                        <tr><th>Date</th><th>Login</th><th>Logout</th><th>Hours</th><th>Break</th><th>Status</th></tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <tr><td colspan="6" class="loading-row"><i class="fas fa-spinner fa-spin"></i></td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
-</div>
 
-<!-- Logout Modal -->
-<div id="logoutModal" class="modal" style="display:none;">
-    <div class="modal-box">
-        <div class="modal-icon"><i class="fas fa-arrow-right-from-bracket"></i></div>
-        <h3>Confirm Logout?</h3>
-        <p>Your shift summary will be saved.</p>
-        <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeModal()"><i class="fas fa-xmark"></i> Cancel</button>
-            <button class="btn-danger" onclick="confirmLogout()"><i class="fas fa-check"></i> Logout</button>
-        </div>
-    </div>
-</div>
+    <script>
+        let faceLogoutStream = null;
+        let faceLogoutTimer = null;
+        let faceLogoutDone = false;
 
-<!-- Summary Modal -->
-<div id="summaryModal" class="modal" style="display:none;">
-    <div class="modal-box">
-        <div class="modal-icon success"><i class="fas fa-circle-check"></i></div>
-        <h3>Aaj Ka Din Khatam! 🎉</h3>
-        <div id="summaryContent" class="summary-content"></div>
-        <button class="btn-primary" onclick="window.location.href='login.html'">
-            <i class="fas fa-home"></i> Go to Login
-        </button>
-    </div>
-</div>
+        function openFaceLogout() {
+            document.getElementById('faceLogoutModal').style.display = 'flex';
+            faceLogoutDone = false;
+            setLogoutStatus('<i class="fas fa-camera"></i> Camera shuru karne ke liye Start dabao', 'info');
+            document.getElementById('faceLogoutCamWrap').style.display = 'none';
+            document.getElementById('faceLogoutStartBtn').style.display = 'flex';
+        }
 
-<script src="js/app.js"></script>
-<script src="js/dashboard.js"></script>
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-</script>
+        function closeFaceLogout() {
+            document.getElementById('faceLogoutModal').style.display = 'none';
+            stopFaceLogoutCamera();
+        }
+
+        async function startFaceLogout() {
+            document.getElementById('faceLogoutStartBtn').style.display = 'none';
+            document.getElementById('faceLogoutCamWrap').style.display = 'block';
+            setLogoutStatus('<i class="fas fa-spinner fa-spin"></i> Camera shuru ho rahi hai...', 'info');
+            faceLogoutDone = false;
+
+            try {
+                faceLogoutStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: 320,
+                        height: 240,
+                        facingMode: 'user'
+                    }
+                });
+                const video = document.getElementById('faceLogoutVideo');
+                video.srcObject = faceLogoutStream;
+                await new Promise(r => video.onloadedmetadata = r);
+
+                setLogoutStatus('<i class="fas fa-spinner fa-spin"></i> Face model load ho raha hai...', 'info');
+                if (!faceapi.nets.tinyFaceDetector.isLoaded) {
+                    await faceapi.nets.tinyFaceDetector.loadFromUri('./models');
+                }
+
+                setLogoutStatus('<i class="fas fa-camera"></i> Camera ke saamne aao — face detect hote hi logout!', 'info');
+
+                let count = 0;
+                faceLogoutTimer = setInterval(async () => {
+                    if (faceLogoutDone) return;
+                    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+                    if (result) {
+                        count++;
+                        setLogoutStatus(`<i class="fas fa-face-smile"></i> Chehra dikh raha hai... (${count}/3)`, 'success');
+                        if (count >= 3) {
+                            faceLogoutDone = true;
+                            clearInterval(faceLogoutTimer);
+                            stopFaceLogoutCamera();
+                            setLogoutStatus('<i class="fas fa-spinner fa-spin"></i> Logout ho raha hai...', 'info');
+                            await confirmLogout();
+                        }
+                    } else {
+                        count = 0;
+                        setLogoutStatus('<i class="fas fa-camera"></i> Camera ke saamne aao...', 'info');
+                    }
+                }, 600);
+            } catch (e) {
+                setLogoutStatus('❌ Camera access nahi mila!', 'error');
+                document.getElementById('faceLogoutStartBtn').style.display = 'flex';
+                document.getElementById('faceLogoutStartBtn').innerHTML = '<i class="fas fa-rotate"></i> Retry';
+            }
+        }
+
+        function setLogoutStatus(msg, type) {
+            const el = document.getElementById('faceLogoutStatus');
+            el.innerHTML = msg;
+            el.style.color = type === 'success' ? '#4ade80' : type === 'error' ? '#fca5a5' : 'var(--text-muted)';
+            el.style.borderColor = type === 'success' ? 'rgba(34,139,34,0.3)' : type === 'error' ? 'rgba(220,20,60,0.3)' : 'var(--glass-border)';
+        }
+
+        function stopFaceLogoutCamera() {
+            if (faceLogoutTimer) {
+                clearInterval(faceLogoutTimer);
+                faceLogoutTimer = null;
+            }
+            if (faceLogoutStream) {
+                faceLogoutStream.getTracks().forEach(t => t.stop());
+                faceLogoutStream = null;
+            }
+        }
+    </script>
 </body>
+
 </html>
-
-

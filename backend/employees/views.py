@@ -79,15 +79,15 @@ def login_view(request):
     distance_m = None
     office = OfficeLocation.objects.filter(is_active=True).first()
     if office:
-        if not lat or not lon:
-            return Response({'error': 'Location access do. GPS zaroori hai.'}, status=400)
-        within, distance_m = office.is_within_radius(float(lat), float(lon))
-        if not within:
-            return Response({
-                'error': f'Aap office se {distance_m}m door hain. 100m ke andar aao.',
-                'distance': distance_m,
-                'office_radius': office.radius_meters,
-            }, status=403)
+        if lat and lon:
+            within, distance_m = office.is_within_radius(float(lat), float(lon))
+            if not within:
+                return Response({
+                    'error': f'Aap office se {distance_m}m door hain. 100m ke andar aao.',
+                    'distance': distance_m,
+                    'office_radius': office.radius_meters,
+                }, status=403)
+        # If no GPS provided but office is set, allow login (GPS optional)
 
     login(request, user)
 
@@ -696,7 +696,133 @@ def office_location(request):
     }})
 
 
-# ── FACE ──────────────────────────────────────────────────────────────────────
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def face_login(request):
+    """Face-only login — koi password check nahi, sirf username se login"""
+    username = request.data.get('username', '').strip()
+    lat = request.data.get('latitude')
+    lon = request.data.get('longitude')
+
+    if not username:
+        return Response({'error': 'Username zaroori hai.'}, status=400)
+
+    from django.contrib.auth.models import User
+    try:
+        user = User.objects.get(username=username, is_active=True)
+    except User.DoesNotExist:
+        return Response({'error': 'Username nahi mila.'}, status=404)
+
+    try:
+        emp = user.employee
+    except Employee.DoesNotExist:
+        return Response({'error': 'Employee profile nahi mila.'}, status=404)
+
+    # Geo-fence check (optional)
+    distance_m = None
+    office = OfficeLocation.objects.filter(is_active=True).first()
+    if office and lat and lon:
+        within, distance_m = office.is_within_radius(float(lat), float(lon))
+        if not within:
+            return Response({
+                'error': f'Aap office se {distance_m}m door hain.',
+                'distance': distance_m,
+            }, status=403)
+
+    login(request, user)
+
+    today = timezone.localdate()
+    att, created = Attendance.objects.get_or_create(
+        employee=emp, date=today,
+        defaults={
+            'login_time': timezone.now(),
+            'face_verified': True,
+            'status': 'present',
+            'login_latitude': lat,
+            'login_longitude': lon,
+            'login_distance_m': distance_m,
+        }
+    )
+    if not created and not att.login_time:
+        att.login_time = timezone.now()
+        att.face_verified = True
+        att.save()
+
+    return Response({
+        'success': True,
+        'message': f'Welcome {user.get_full_name() or username}!',
+        'is_admin': user.is_staff,
+        'employee': {
+            'id': emp.id,
+            'name': user.get_full_name() or username,
+            'username': user.username,
+            'employee_id': emp.employee_id,
+            'department': emp.department,
+        },
+    })
+
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def forgot_password_check(request):
+    """Step 1: Check if username exists"""
+    username = request.data.get('username', '').strip()
+    if not username:
+        return Response({'error': 'Username zaroori hai.'}, status=400)
+    from django.contrib.auth.models import User
+    if not User.objects.filter(username=username, is_active=True).exists():
+        return Response({'error': 'Yeh username registered nahi hai.'}, status=404)
+    return Response({'success': True, 'message': 'Username found.'})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def forgot_password_verify(request):
+    """Step 2: Verify username + employee_id match"""
+    username = request.data.get('username', '').strip()
+    employee_id = request.data.get('employee_id', '').strip()
+    if not username or not employee_id:
+        return Response({'error': 'Username aur Employee ID zaroori hain.'}, status=400)
+    from django.contrib.auth.models import User
+    try:
+        user = User.objects.get(username=username, is_active=True)
+        emp = user.employee
+        if emp.employee_id.upper() != employee_id.upper():
+            return Response({'error': 'Employee ID match nahi hua.'}, status=400)
+        return Response({'success': True, 'message': 'Identity verified.'})
+    except User.DoesNotExist:
+        return Response({'error': 'User nahi mila.'}, status=404)
+    except Employee.DoesNotExist:
+        return Response({'error': 'Employee profile nahi mila.'}, status=404)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def forgot_password_reset(request):
+    """Step 3: Reset password after verification"""
+    username = request.data.get('username', '').strip()
+    new_password = request.data.get('new_password', '').strip()
+    if not username or not new_password:
+        return Response({'error': 'Username aur new_password zaroori hain.'}, status=400)
+    if len(new_password) < 6:
+        return Response({'error': 'Password kam se kam 6 characters ka hona chahiye.'}, status=400)
+    from django.contrib.auth.models import User
+    try:
+        user = User.objects.get(username=username, is_active=True)
+        user.set_password(new_password)
+        user.save()
+        return Response({'success': True, 'message': 'Password reset ho gaya!'})
+    except User.DoesNotExist:
+        return Response({'error': 'User nahi mila.'}, status=404)
+
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -732,3 +858,99 @@ def register_face(request):
         return Response({'success': True, 'message': 'Face register ho gaya!'})
     except Employee.DoesNotExist:
         return Response({'error': 'Employee nahi mila.'}, status=404)
+
+
+# ── EMPLOYEE MANAGEMENT (Admin) ───────────────────────────────────────────────
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def add_employee(request):
+    """Admin: Add new employee"""
+    if not request.user.is_staff:
+        return Response({'error': 'Admin only.'}, status=403)
+
+    from django.contrib.auth.models import User
+
+    data = request.data
+    full_name = data.get('full_name', '').strip()
+    username = data.get('username', '').strip()
+    password = data.get('password', '').strip()
+    employee_id = data.get('employee_id', '').strip()
+    department = data.get('department', '').strip()
+    is_admin = data.get('is_admin', False)
+
+    if not all([full_name, username, password, employee_id]):
+        return Response({'error': 'Full name, username, password aur employee ID zaroori hain.'}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Yeh username pehle se exist karta hai.'}, status=400)
+
+    if Employee.objects.filter(employee_id=employee_id).exists():
+        return Response({'error': 'Yeh Employee ID pehle se exist karti hai.'}, status=400)
+
+    name_parts = full_name.split(' ', 1)
+    first_name = name_parts[0]
+    last_name = name_parts[1] if len(name_parts) > 1 else ''
+
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+        is_staff=is_admin
+    )
+
+    Employee.objects.create(
+        user=user,
+        employee_id=employee_id,
+        department=department
+    )
+
+    return Response({'success': True, 'message': f'{full_name} successfully add ho gaya!'})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_employees(request):
+    """Admin: List all employees"""
+    if not request.user.is_staff:
+        return Response({'error': 'Admin only.'}, status=403)
+
+    employees = Employee.objects.all().select_related('user').order_by('employee_id')
+    data = []
+    for emp in employees:
+        data.append({
+            'id': emp.id,
+            'name': emp.user.get_full_name() or emp.user.username,
+            'username': emp.user.username,
+            'employee_id': emp.employee_id,
+            'department': emp.department,
+            'is_admin': emp.user.is_staff,
+            'is_active': emp.user.is_active,
+        })
+    return Response({'employees': data})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def delete_employee(request):
+    """Admin: Delete an employee"""
+    if not request.user.is_staff:
+        return Response({'error': 'Admin only.'}, status=403)
+
+    username = request.data.get('username', '').strip()
+    if not username:
+        return Response({'error': 'Username zaroori hai.'}, status=400)
+
+    from django.contrib.auth.models import User
+    try:
+        user = User.objects.get(username=username)
+        if user == request.user:
+            return Response({'error': 'You cannot delete your own account.'}, status=400)
+        name = user.get_full_name() or user.username
+        user.delete()
+        return Response({'success': True, 'message': f'{name} successfully deleted!'})
+    except User.DoesNotExist:
+        return Response({'error': 'Employee not found.'}, status=404)

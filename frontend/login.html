@@ -1,5 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,172 +11,645 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="login-body">
 
-<div class="bg-orbs">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-</div>
-
-<div class="login-wrapper">
-
-    <!-- LEFT PANEL -->
-    <div class="login-left">
-        <div class="brand-section">
-            <div class="brand-logo"><i class="fas fa-fingerprint"></i></div>
-            <h1>LMT EPLY Tracker</h1>
-            <p>Smart Employee Attendance System</p>
-        </div>
-        <div class="features-list">
-            <div class="feature-chip">
-                <div class="feature-chip-icon ic-cyan"><i class="fas fa-clock"></i></div>
-                <span>8 Hour Shift Tracking</span>
-            </div>
-            <div class="feature-chip">
-                <div class="feature-chip-icon ic-orange"><i class="fas fa-coffee"></i></div>
-                <span>1 Hour Break Management</span>
-            </div>
-            <div class="feature-chip">
-                <div class="feature-chip-icon ic-purple"><i class="fas fa-location-dot"></i></div>
-                <span>Geo-fence Attendance</span>
-            </div>
-            <div class="feature-chip">
-                <div class="feature-chip-icon ic-green"><i class="fas fa-chart-bar"></i></div>
-                <span>Attendance History & Reports</span>
-            </div>
-        </div>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     </div>
 
-    <!-- RIGHT PANEL -->
-    <div class="login-right">
-        <div class="login-box">
+    <div class="login-wrapper">
 
-            <div class="login-header">
-                <div class="step-badge"><i class="fas fa-circle-dot"></i> Employee Login</div>
-                <h2>Welcome Back!</h2>
-                <p>Enter your credentials to mark attendance</p>
+        <!-- LEFT PANEL -->
+        <div class="login-left">
+            <div class="brand-section">
+                <div class="brand-logo"><i class="fas fa-fingerprint"></i></div>
+                <h1>LMT EPLY Tracker</h1>
+                <p>Smart Employee Attendance System</p>
             </div>
 
-            <form id="loginForm">
+            <!-- SLIDESHOW -->
+            <div class="slideshow-wrap">
+                <div class="slideshow-inner">
+                    <div class="slide-item active">
+                        <img src="images/person1.jpg" alt="Employee 1">
+                        <div class="slide-caption"><i class="fas fa-user-check"></i> Face Recognition Login</div>
+                    </div>
+                    <div class="slide-item">
+                        <img src="images/person2.jpg" alt="Employee 2">
+                        <div class="slide-caption"><i class="fas fa-location-dot"></i> Geo-fence Attendance</div>
+                    </div>
+                </div>
+                <div class="slide-dots">
+                    <span class="slide-dot active" onclick="goSlide(0)"></span>
+                    <span class="slide-dot" onclick="goSlide(1)"></span>
+                </div>
+            </div>
+
+            <div class="features-list">
+                <div class="feature-chip">
+                    <div class="feature-chip-icon ic-cyan"><i class="fas fa-clock"></i></div>
+                    <span>8 Hour Shift Tracking</span>
+                </div>
+                <div class="feature-chip">
+                    <div class="feature-chip-icon ic-orange"><i class="fas fa-coffee"></i></div>
+                    <span>1 Hour Break Management</span>
+                </div>
+                <div class="feature-chip">
+                    <div class="feature-chip-icon ic-purple"><i class="fas fa-location-dot"></i></div>
+                    <span>Geo-fence Attendance</span>
+                </div>
+                <div class="feature-chip">
+                    <div class="feature-chip-icon ic-green"><i class="fas fa-chart-bar"></i></div>
+                    <span>Attendance History & Reports</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="login-right">
+            <div class="login-box">
+
+                <div class="login-header">
+                    <div class="step-badge"><i class="fas fa-circle-dot"></i> Employee Login</div>
+                    <h2>Welcome Back!</h2>
+                    <p>Enter your credentials to mark attendance</p>
+                </div>
+
+                <!-- TAB SWITCHER -->
+                <div style="display:flex; gap:8px; margin-bottom:22px;">
+                    <button id="tabCredBtn" onclick="showLoginTab('creds')" style="flex:1;padding:9px;border-radius:10px;border:1px solid rgba(34,139,34,0.4);background:rgba(34,139,34,0.15);color:#4ade80;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;">
+                        <i class="fas fa-key"></i> Password Login
+                    </button>
+                    <button id="tabFaceBtn" onclick="showLoginTab('face')" style="flex:1;padding:9px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-muted);font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;">
+                        <i class="fas fa-camera"></i> Face Login
+                    </button>
+                </div>
+
+                <!-- PASSWORD LOGIN TAB -->
+                <div id="tabCreds">
+                    <form id="loginForm">
+                        <div class="input-group">
+                            <label class="input-label">Username</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="username" placeholder="Enter your username" required autocomplete="username">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Password</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+                                <button type="button" class="toggle-pass" onclick="togglePassword()">
+                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="text-align:right; margin-bottom: 14px; margin-top: -6px;">
+                            <a href="#" id="forgotLink" onclick="openForgotModal(event)" style="font-size:0.8rem; color:#4ade80; text-decoration:none; font-weight:500; transition: color 0.2s;">
+                                <i class="fas fa-key" style="margin-right:4px;"></i>Forgot Password?
+                            </a>
+                        </div>
+
+                        <button type="submit" class="btn-primary" id="loginBtn">
+                            <i class="fas fa-right-to-bracket"></i> Login
+                        </button>
+                    </form>
+                </div>
+
+                <!-- FACE LOGIN TAB -->
+                <div id="tabFace" style="display:none;">
+                    <div style="text-align:center; margin-bottom:14px;">
+                        <p style="color:var(--text-muted); font-size:0.85rem;">Look into the camera — face will be detected and you'll be logged in!</p>
+                    </div>
+                    <div class="camera-container" id="faceCamContainer" style="display:none;">
+                        <video id="faceLoginVideo" autoplay muted playsinline style="width:100%; border-radius:14px;"></video>
+                        <canvas id="faceLoginOverlay" style="position:absolute;top:0;left:0;"></canvas>
+                        <div class="camera-frame">
+                            <div class="corner tl"></div>
+                            <div class="corner tr"></div>
+                            <div class="corner bl"></div>
+                            <div class="corner br"></div>
+                        </div>
+                    </div>
+                    <div id="faceLoginStatus" style="text-align:center; padding:14px; color:var(--text-muted); font-size:0.85rem; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:12px; margin-bottom:14px;">
+                        <i class="fas fa-camera"></i> Click Start to begin face detection
+                    </div>
+                    <button id="startFaceLoginBtn" onclick="startFaceLogin()" class="btn-primary">
+                        <i class="fas fa-camera"></i> Start Camera
+                    </button>
+                    <div class="input-group" style="margin-top:14px; display:none;" id="faceLoginUsernameWrap">
+                        <label class="input-label">Username</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="faceUsername" placeholder="Enter your username">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading state -->
+                <div id="loginLoading" style="display:none; text-align:center; padding:20px 0;">
+                    <div class="spinner-large"></div>
+                    <p style="color:var(--text-muted); margin-top:10px;" id="loginLoadingText">Logging in...</p>
+                </div>
+
+                <div id="errorMsg" class="error-msg" style="display:none; margin-top:14px;">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span id="errorText"></span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── FORGOT PASSWORD MODAL ─────────────────────────────── -->
+    <div id="forgotModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
+        <div style="background:#222; border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:36px; max-width:400px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.5); animation: modal-in 0.25s cubic-bezier(0.34,1.56,0.64,1);">
+
+            <!-- Step 1: Enter Username -->
+            <div id="fp-step1">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="width:60px;height:60px;background:rgba(34,139,34,0.15);border:1px solid rgba(34,139,34,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;color:#4ade80;">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3 style="color:#f1f5f9;font-size:1.15rem;font-weight:700;margin-bottom:6px;">Forgot Password?</h3>
+                    <p style="color:#a0aab4;font-size:0.85rem;">Enter your username and we'll help you reset it.</p>
+                </div>
                 <div class="input-group">
                     <label class="input-label">Username</label>
                     <div class="input-wrap">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="Username" placeholder="Enter your username" required autocomplete="Username">
+                        <input type="text" id="fp-username" placeholder="Enter your username" autocomplete="off">
                     </div>
                 </div>
-
-                <div class="input-group">
-                    <label class="input-label">Password</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
-                        <button type="button" class="toggle-pass" onclick="togglePassword()">
-                            <i class="fas fa-eye" id="eyeIcon"></i>
-                        </button>
-                    </div>
+                <div id="fp-error" style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(220,20,60,0.1);border:1px solid rgba(220,20,60,0.25);color:#fca5a5;border-radius:10px;font-size:0.82rem;display:none;align-items:center;gap:8px;">
+                    <i class="fas fa-circle-exclamation"></i><span id="fp-error-text"></span>
                 </div>
-
-                <button type="submit" class="btn-primary" id="loginBtn">
-                    <i class="fas fa-right-to-bracket"></i> Login
-                </button>
-            </form>
-
-            <!-- Loading state -->
-            <div id="loginLoading" style="display:none; text-align:center; padding:20px 0;">
-                <div class="spinner-large"></div>
-                <p style="color:var(--text-muted); margin-top:10px;">Logging in...</p>
+                <div style="display:flex;gap:10px;margin-top:6px;">
+                    <button onclick="closeForgotModal()" class="btn-secondary" style="flex:1;">Cancel</button>
+                    <button onclick="submitForgotUsername()" class="btn-primary" style="flex:1;" id="fp-next-btn">
+                        <i class="fas fa-arrow-right"></i> Next
+                    </button>
+                </div>
             </div>
 
-            <div id="errorMsg" class="error-msg" style="display:none; margin-top:14px;">
-                <i class="fas fa-circle-exclamation"></i>
-                <span id="errorText"></span>
+            <!-- Step 2: Enter Employee ID to verify -->
+            <div id="fp-step2" style="display:none;">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="width:60px;height:60px;background:rgba(34,139,34,0.15);border:1px solid rgba(34,139,34,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;color:#4ade80;">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+                    <h3 style="color:#f1f5f9;font-size:1.15rem;font-weight:700;margin-bottom:6px;">Verify Identity</h3>
+                    <p style="color:#a0aab4;font-size:0.85rem;">Enter your Employee ID to verify your identity.</p>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Employee ID</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="fp-empid" placeholder="e.g. EMP001" autocomplete="off">
+                    </div>
+                </div>
+                <div id="fp-error2" style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(220,20,60,0.1);border:1px solid rgba(220,20,60,0.25);color:#fca5a5;border-radius:10px;font-size:0.82rem;align-items:center;gap:8px;">
+                    <i class="fas fa-circle-exclamation"></i><span id="fp-error-text2"></span>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:6px;">
+                    <button onclick="fpGoBack()" class="btn-secondary" style="flex:1;"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button onclick="submitForgotVerify()" class="btn-primary" style="flex:1;" id="fp-verify-btn">
+                        <i class="fas fa-shield-halved"></i> Verify
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Set New Password -->
+            <div id="fp-step3" style="display:none;">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="width:60px;height:60px;background:rgba(34,139,34,0.15);border:1px solid rgba(34,139,34,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;color:#4ade80;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 style="color:#f1f5f9;font-size:1.15rem;font-weight:700;margin-bottom:6px;">Set New Password</h3>
+                    <p style="color:#a0aab4;font-size:0.85rem;">Choose a strong new password.</p>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">New Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="fp-newpass" placeholder="Min 6 characters" autocomplete="new-password">
+                        <button type="button" class="toggle-pass" onclick="toggleFpPass('fp-newpass','fp-eye1')"><i class="fas fa-eye" id="fp-eye1"></i></button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Confirm Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="fp-confirmpass" placeholder="Re-enter new password" autocomplete="new-password">
+                        <button type="button" class="toggle-pass" onclick="toggleFpPass('fp-confirmpass','fp-eye2')"><i class="fas fa-eye" id="fp-eye2"></i></button>
+                    </div>
+                </div>
+                <div id="fp-error3" style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(220,20,60,0.1);border:1px solid rgba(220,20,60,0.25);color:#fca5a5;border-radius:10px;font-size:0.82rem;align-items:center;gap:8px;">
+                    <i class="fas fa-circle-exclamation"></i><span id="fp-error-text3"></span>
+                </div>
+                <button onclick="submitNewPassword()" class="btn-primary" style="width:100%;" id="fp-save-btn">
+                    <i class="fas fa-check"></i> Save New Password
+                </button>
+            </div>
+
+            <!-- Step 4: Success -->
+            <div id="fp-step4" style="display:none;text-align:center;">
+                <div style="width:70px;height:70px;background:rgba(34,139,34,0.15);border:1px solid rgba(34,139,34,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem;color:#4ade80;">
+                    <i class="fas fa-circle-check"></i>
+                </div>
+                <h3 style="color:#f1f5f9;font-size:1.15rem;font-weight:700;margin-bottom:8px;">Password Reset!</h3>
+                <p style="color:#a0aab4;font-size:0.85rem;margin-bottom:24px;">Aapka password successfully change ho gaya. Ab login karein.</p>
+                <button onclick="closeForgotModal()" class="btn-primary" style="width:100%;">
+                    <i class="fas fa-right-to-bracket"></i> Go to Login
+                </button>
             </div>
 
         </div>
     </div>
 
-</div>
+    <script src="js/app.js"></script>
+    <script src="js/face-api.min.js"></script>
+    <script>
+        // ── TAB SWITCH ─────────────────────────────────────────
+        let faceLoginStream = null;
+        let faceDetectTimer = null;
+        let faceLoginDone = false;
 
-<script src="js/app.js"></script>
-<script>
-function togglePassword() {
-    const input = document.getElementById('password');
-    const icon  = document.getElementById('eyeIcon');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'fas fa-eye-slash';
-    } else {
-        input.type = 'password';
-        icon.className = 'fas fa-eye';
-    }
-}
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const Username = document.getElementById('Username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const errorDiv = document.getElementById('errorMsg');
-    const errorTxt = document.getElementById('errorText');
-
-    errorDiv.style.display = 'none';
-
-    if (!Username || !password) {
-        errorTxt.textContent = 'Please enter username and password!';
-        errorDiv.style.display = 'flex';
-        return;
-    }
-
-    // Show loading
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('loginLoading').style.display = 'block';
-
-    try {
-        // Step 1: Get CSRF token first
-        await fetch('http://127.0.0.1:8000/api/auth/check/', {
-            credentials: 'include'
-        });
-
-        // Step 2: Get GPS (optional)
-        let lat = null, lon = null;
-        try {
-            const pos = await getPosition();
-            lat = pos.coords.latitude;
-            lon = pos.coords.longitude;
-        } catch (e) {
-            console.warn('GPS unavailable:', e.message);
+        function showLoginTab(tab) {
+            document.getElementById('tabCreds').style.display = tab === 'creds' ? 'block' : 'none';
+            document.getElementById('tabFace').style.display = tab === 'face' ? 'block' : 'none';
+            document.getElementById('tabCredBtn').style.background = tab === 'creds' ? 'rgba(34,139,34,0.15)' : 'rgba(255,255,255,0.04)';
+            document.getElementById('tabCredBtn').style.color = tab === 'creds' ? '#4ade80' : 'var(--text-muted)';
+            document.getElementById('tabCredBtn').style.borderColor = tab === 'creds' ? 'rgba(34,139,34,0.4)' : 'rgba(255,255,255,0.08)';
+            document.getElementById('tabFaceBtn').style.background = tab === 'face' ? 'rgba(34,139,34,0.15)' : 'rgba(255,255,255,0.04)';
+            document.getElementById('tabFaceBtn').style.color = tab === 'face' ? '#4ade80' : 'var(--text-muted)';
+            document.getElementById('tabFaceBtn').style.borderColor = tab === 'face' ? 'rgba(34,139,34,0.4)' : 'rgba(255,255,255,0.08)';
+            if (tab === 'creds') stopFaceLoginCamera();
         }
 
-        // Step 3: Login
-        const result = await apiCall('/auth/login/', 'POST', {
-            Username,
-            password,
-            latitude:  lat,
-            longitude: lon,
-        });
+        // ── FACE LOGIN ─────────────────────────────────────────
+        async function startFaceLogin() {
+            const username = document.getElementById('faceUsername').value.trim();
+            if (!username) {
+                document.getElementById('faceLoginUsernameWrap').style.display = 'block';
+                setFaceStatus('⚠️ Please enter your username first!', 'warn');
+                document.getElementById('faceUsername').focus();
+                return;
+            }
 
-        if (result.success) {
-            localStorage.setItem('employee', JSON.stringify(result.employee));
-            // Admin ko admin panel, employee ko dashboard
-            if (result.is_admin) {
-                window.location.href = 'admin-panel.html';
-            } else {
-                window.location.href = 'dashboard.html';
+            document.getElementById('startFaceLoginBtn').style.display = 'none';
+            document.getElementById('faceLoginUsernameWrap').style.display = 'block';
+            document.getElementById('faceCamContainer').style.display = 'block';
+            setFaceStatus('<i class="fas fa-spinner fa-spin"></i> Starting camera...', 'info');
+            faceLoginDone = false;
+
+            try {
+                faceLoginStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: 320,
+                        height: 240,
+                        facingMode: 'user'
+                    }
+                });
+                const video = document.getElementById('faceLoginVideo');
+                video.srcObject = faceLoginStream;
+                await new Promise(r => video.onloadedmetadata = r);
+
+                // Load face-api models
+                setFaceStatus('<i class="fas fa-spinner fa-spin"></i> Loading face model...', 'info');
+                await faceapi.nets.tinyFaceDetector.loadFromUri('./models');
+
+                setFaceStatus('<i class="fas fa-camera"></i> Look into the camera — login will happen automatically!', 'info');
+
+                let count = 0;
+                faceDetectTimer = setInterval(async () => {
+                    if (faceLoginDone) return;
+                    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+                    if (result) {
+                        count++;
+                        setFaceStatus(`<i class="fas fa-face-smile"></i> Face detected... (${count}/3)`, 'success');
+                        if (count >= 3) {
+                            faceLoginDone = true;
+                            clearInterval(faceDetectTimer);
+                            stopFaceLoginCamera();
+                            await doFaceLogin(username);
+                        }
+                    } else {
+                        count = 0;
+                        setFaceStatus('<i class="fas fa-camera"></i> Look into the camera...', 'info');
+                    }
+                }, 600);
+            } catch (e) {
+                setFaceStatus('❌ Camera access denied. Please allow camera permission.', 'error');
+                document.getElementById('startFaceLoginBtn').style.display = 'block';
+                document.getElementById('startFaceLoginBtn').innerHTML = '<i class="fas fa-rotate"></i> Try Again';
             }
         }
 
-    } catch (err) {
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('loginLoading').style.display = 'none';
-        errorTxt.textContent = err.error || 'Login failed. Please try again.';
-        errorDiv.style.display = 'flex';
-        console.error('Login error:', err);
-    }
-});
-</script>
+        async function doFaceLogin(username) {
+            setFaceStatus('<i class="fas fa-spinner fa-spin"></i> Logging in...', 'info');
+            document.getElementById('tabFace').style.display = 'none';
+            document.getElementById('loginLoading').style.display = 'block';
+            document.getElementById('loginLoadingText').textContent = 'Face verified! Logging in...';
+
+            try {
+                await fetch('http://192.168.1.3:8000/api/auth/check/', {
+                    credentials: 'include'
+                });
+
+                let lat = null,
+                    lon = null;
+                try {
+                    const pos = await getPosition();
+                    lat = pos.coords.latitude;
+                    lon = pos.coords.longitude;
+                } catch {}
+
+                // Face login — use stored password or face-only endpoint
+                const result = await apiCall('/auth/face-login/', 'POST', {
+                    username,
+                    latitude: lat,
+                    longitude: lon
+                });
+
+                if (result.success) {
+                    localStorage.setItem('employee', JSON.stringify(result.employee));
+                    window.location.href = result.is_admin ? 'admin-panel.html' : 'dashboard.html';
+                }
+            } catch (err) {
+                document.getElementById('loginLoading').style.display = 'none';
+                document.getElementById('tabFace').style.display = 'block';
+                document.getElementById('startFaceLoginBtn').style.display = 'block';
+                document.getElementById('startFaceLoginBtn').innerHTML = '<i class="fas fa-rotate"></i> Try Again';
+                setFaceStatus('❌ ' + (err.error || 'Login failed. Please try again.'), 'error');
+                faceLoginDone = false;
+            }
+        }
+
+        function setFaceStatus(msg, type) {
+            const el = document.getElementById('faceLoginStatus');
+            el.innerHTML = msg;
+            el.style.color = type === 'success' ? '#4ade80' : type === 'error' ? '#fca5a5' : type === 'warn' ? '#fcd34d' : 'var(--text-muted)';
+            el.style.borderColor = type === 'success' ? 'rgba(34,139,34,0.3)' : type === 'error' ? 'rgba(220,20,60,0.3)' : 'var(--glass-border)';
+        }
+
+        function stopFaceLoginCamera() {
+            if (faceDetectTimer) {
+                clearInterval(faceDetectTimer);
+                faceDetectTimer = null;
+            }
+            if (faceLoginStream) {
+                faceLoginStream.getTracks().forEach(t => t.stop());
+                faceLoginStream = null;
+            }
+        }
+    </script>
+    <script>
+        // ── Forgot Password Logic ──────────────────────────────
+        let fpUsername = '';
+
+        function openForgotModal(e) {
+            e.preventDefault();
+            document.getElementById('forgotModal').style.display = 'flex';
+            showFpStep(1);
+            document.getElementById('fp-username').value = '';
+            document.getElementById('fp-empid').value = '';
+            document.getElementById('fp-newpass').value = '';
+            document.getElementById('fp-confirmpass').value = '';
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').style.display = 'none';
+        }
+
+        function showFpStep(n) {
+            [1, 2, 3, 4].forEach(i => {
+                document.getElementById(`fp-step${i}`).style.display = i === n ? 'block' : 'none';
+            });
+            ['fp-error', 'fp-error2', 'fp-error3'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        }
+
+        function showFpError(step, msg) {
+            const ids = {
+                1: 'fp-error',
+                2: 'fp-error2',
+                3: 'fp-error3'
+            };
+            const tids = {
+                1: 'fp-error-text',
+                2: 'fp-error-text2',
+                3: 'fp-error-text3'
+            };
+            const el = document.getElementById(ids[step]);
+            document.getElementById(tids[step]).textContent = msg;
+            el.style.display = 'flex';
+        }
+
+        function fpGoBack() {
+            showFpStep(1);
+        }
+
+        function toggleFpPass(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        async function submitForgotUsername() {
+            const username = document.getElementById('fp-username').value.trim();
+            if (!username) {
+                showFpError(1, 'Username enter karo.');
+                return;
+            }
+
+            const btn = document.getElementById('fp-next-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+
+            try {
+                await apiCall('/auth/forgot-password/check/', 'POST', {
+                    username
+                });
+                fpUsername = username;
+                showFpStep(2);
+            } catch (err) {
+                showFpError(1, err.error || 'Username nahi mila.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-arrow-right"></i> Next';
+            }
+        }
+
+        async function submitForgotVerify() {
+            const empId = document.getElementById('fp-empid').value.trim();
+            if (!empId) {
+                showFpError(2, 'Employee ID enter karo.');
+                return;
+            }
+
+            const btn = document.getElementById('fp-verify-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+            try {
+                await apiCall('/auth/forgot-password/verify/', 'POST', {
+                    username: fpUsername,
+                    employee_id: empId
+                });
+                showFpStep(3);
+            } catch (err) {
+                showFpError(2, err.error || 'Employee ID match nahi hua.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-shield-halved"></i> Verify';
+            }
+        }
+
+        async function submitNewPassword() {
+            const newPass = document.getElementById('fp-newpass').value;
+            const confirmPass = document.getElementById('fp-confirmpass').value;
+
+            if (!newPass || newPass.length < 6) {
+                showFpError(3, 'Password kam se kam 6 characters ka hona chahiye.');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showFpError(3, 'Dono passwords match nahi kar rahe.');
+                return;
+            }
+
+            const btn = document.getElementById('fp-save-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                await apiCall('/auth/forgot-password/reset/', 'POST', {
+                    username: fpUsername,
+                    new_password: newPass
+                });
+                showFpStep(4);
+            } catch (err) {
+                showFpError(3, err.error || 'Password reset nahi hua. Dobara try karo.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Save New Password';
+            }
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('forgotModal').addEventListener('click', function(e) {
+            if (e.target === this) closeForgotModal();
+        });
+    </script>
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('errorMsg');
+            const errorTxt = document.getElementById('errorText');
+
+            errorDiv.style.display = 'none';
+
+            if (!username || !password) {
+                errorTxt.textContent = 'Please enter username and password!';
+                errorDiv.style.display = 'flex';
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('loginLoading').style.display = 'block';
+
+            try {
+                // Step 1: Get CSRF token first
+                await fetch('http://192.168.1.3:8000/api/auth/check/', {
+                    credentials: 'include'
+                });
+
+                // Step 2: Get GPS (optional — login will proceed even without it)
+                let lat = null,
+                    lon = null;
+                try {
+                    const pos = await getPosition();
+                    lat = pos.coords.latitude;
+                    lon = pos.coords.longitude;
+                } catch (e) {
+                    console.warn('GPS unavailable:', e.message);
+                }
+
+                // Step 3: Login
+                const result = await apiCall('/auth/login/', 'POST', {
+                    username,
+                    password,
+                    latitude: lat,
+                    longitude: lon,
+                });
+
+                if (result.success) {
+                    localStorage.setItem('employee', JSON.stringify(result.employee));
+                    if (result.is_admin) {
+                        window.location.href = 'admin-panel.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }
+
+            } catch (err) {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('loginLoading').style.display = 'none';
+                errorTxt.textContent = err.error || 'Login failed. Please try again.';
+                errorDiv.style.display = 'flex';
+                console.error('Login error:', err);
+            }
+        });
+    </script>
+    <script>
+        // ── SLIDESHOW ──────────────────────────────────────────
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-item');
+        const dots = document.querySelectorAll('.slide-dot');
+
+        function goSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = n % slides.length;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+
+        // Auto slide every 3 seconds
+        setInterval(() => goSlide(currentSlide + 1), 3000);
+    </script>
 </body>
+
 </html>
-
-
