@@ -94,6 +94,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
     "http://192.168.1.3:5500",
+    "https://employeeapp-frontend-five.vercel.app",
+    "https://employeeapp-production-61218222.up.railway.app",
 ]
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://.*\.vercel\.app$",
@@ -103,6 +105,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
     "http://192.168.1.3:5500",
+    "https://employeeapp-frontend-five.vercel.app",
+    "https://employeeapp-production-61218222.up.railway.app",
 ]
 
 # Session settings

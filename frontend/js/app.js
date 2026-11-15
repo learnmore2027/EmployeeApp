@@ -1,4 +1,4 @@
-const API_BASE = 'http://192.168.1.3:8000/api';
+const API_BASE = 'https://employeeapp-production-61218222.up.railway.app/api';
 
 function getCookie(name) {
     let v = null;
