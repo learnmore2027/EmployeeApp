@@ -1,9 +1,17 @@
 import os
 from pathlib import Path
-import dj_database_url
-from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    import dj_database_url
+    HAS_DJ_DATABASE_URL = True
+except ImportError:
+    HAS_DJ_DATABASE_URL = False
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -57,13 +65,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'employeeapp.wsgi.application'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f"postgresql://postgres:123@localhost:5432/employeedb",
-        conn_max_age=600,
-        ssl_require=False
-    )
-}
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL and HAS_DJ_DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('PGDATABASE', 'employeedb'),
+            'USER': os.environ.get('PGUSER', 'postgres'),
+            'PASSWORD': os.environ.get('PGPASSWORD', '123'),
+            'HOST': os.environ.get('PGHOST', 'localhost'),
+            'PORT': os.environ.get('PGPORT', '5432'),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
