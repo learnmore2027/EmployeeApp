@@ -61,7 +61,7 @@ DATABASES = {
     'default': dj_database_url.config(
         default=f"postgresql://postgres:123@localhost:5432/employeedb",
         conn_max_age=600,
-        ssl_require=os.environ.get('DATABASE_SSL', 'False') == 'True'
+        ssl_require=False
     )
 }
 
