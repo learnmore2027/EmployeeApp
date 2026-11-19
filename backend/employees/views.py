@@ -34,9 +34,12 @@ def check_auth(request):
     if request.user.is_authenticated:
         try:
             emp = request.user.employee
+            from rest_framework.authtoken.models import Token
+            token, _ = Token.objects.get_or_create(user=request.user)
             return Response({
                 'authenticated': True,
                 'is_admin': request.user.is_staff,
+                'token': token.key,
                 'user': {
                     'name': request.user.get_full_name() or request.user.username,
                     'username': request.user.username,
@@ -111,8 +114,13 @@ def login_view(request):
         att.login_distance_m = distance_m
         att.save()
 
+    # Generate or get token
+    from rest_framework.authtoken.models import Token
+    token, _ = Token.objects.get_or_create(user=user)
+
     return Response({
         'success': True,
+        'token': token.key,
         'message': f'Welcome {user.get_full_name() or username}!',
         'is_admin': user.is_staff,
         'employee': {
@@ -749,8 +757,12 @@ def face_login(request):
         att.face_verified = True
         att.save()
 
+    from rest_framework.authtoken.models import Token
+    token, _ = Token.objects.get_or_create(user=user)
+
     return Response({
         'success': True,
+        'token': token.key,
         'message': f'Welcome {user.get_full_name() or username}!',
         'is_admin': user.is_staff,
         'employee': {

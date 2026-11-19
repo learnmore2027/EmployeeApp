@@ -11,13 +11,28 @@ function getCookie(name) {
     return v;
 }
 
+// Token helpers
+function getAuthToken() {
+    return localStorage.getItem('auth_token');
+}
+
+function setAuthToken(token) {
+    if (token) localStorage.setItem('auth_token', token);
+}
+
+function clearAuthToken() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('employee');
+}
+
 async function apiCall(endpoint, method = 'GET', data = null) {
-    const opts = {
-        method,
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-        credentials: 'include',
-    };
+    const token = getAuthToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Token ${token}`;
+
+    const opts = { method, headers, credentials: 'include' };
     if (data && method !== 'GET') opts.body = JSON.stringify(data);
+
     const res = await fetch(`${API_BASE}${endpoint}`, opts);
     const json = await res.json();
     if (!res.ok) throw { status: res.status, ...json };
@@ -54,7 +69,6 @@ function getGreeting() {
     return h < 12 ? 'Good Morning! ☀️' : h < 17 ? 'Good Afternoon! 🌤️' : 'Good Evening! 🌙';
 }
 
-// GPS helpers
 function getPosition() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) return reject(new Error('GPS not supported'));

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0a0a1a">
     <link rel="icon" href="images/icon-192.png">
-    <title>LMT EPLY Tracker — Login</title>
+    <title>LMT EPLY Tracker ï¿½ Login</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -125,7 +125,7 @@
                 <!-- FACE LOGIN TAB -->
                 <div id="tabFace" style="display:none;">
                     <div style="text-align:center; margin-bottom:14px;">
-                        <p style="color:var(--text-muted); font-size:0.85rem;">Look into the camera — face will be detected and you'll be logged in!</p>
+                        <p style="color:var(--text-muted); font-size:0.85rem;">Look into the camera ï¿½ face will be detected and you'll be logged in!</p>
                     </div>
                     <div class="camera-container" id="faceCamContainer" style="display:none;">
                         <video id="faceLoginVideo" autoplay muted playsinline style="width:100%; border-radius:14px;"></video>
@@ -326,7 +326,7 @@
                 setFaceStatus('<i class="fas fa-spinner fa-spin"></i> Loading face model...', 'info');
                 await faceapi.nets.tinyFaceDetector.loadFromUri('./models');
 
-                setFaceStatus('<i class="fas fa-camera"></i> Look into the camera — login will happen automatically!', 'info');
+                setFaceStatus('<i class="fas fa-camera"></i> Look into the camera ï¿½ login will happen automatically!', 'info');
 
                 let count = 0;
                 faceDetectTimer = setInterval(async () => {
@@ -372,7 +372,7 @@
                     lon = pos.coords.longitude;
                 } catch {}
 
-                // Face login — use stored password or face-only endpoint
+                // Face login ï¿½ use stored password or face-only endpoint
                 const result = await apiCall('/auth/face-login/', 'POST', {
                     username,
                     latitude: lat,
@@ -596,7 +596,7 @@
                     credentials: 'include'
                 });
 
-                // Step 2: Get GPS (optional — login will proceed even without it)
+                // Step 2: Get GPS (optional ï¿½ login will proceed even without it)
                 let lat = null,
                     lon = null;
                 try {
@@ -617,6 +617,7 @@
 
                 if (result.success) {
                     localStorage.setItem('employee', JSON.stringify(result.employee));
+                    if (result.token) setAuthToken(result.token);
                     if (result.is_admin) {
                         window.location.href = 'admin-panel.html';
                     } else {
