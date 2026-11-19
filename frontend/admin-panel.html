@@ -201,9 +201,15 @@
     <script src="js/app.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
             try {
                 const auth = await apiCall('/auth/check/');
                 if (!auth.authenticated) {
+                    clearAuthToken();
                     window.location.href = 'login.html';
                     return;
                 }
@@ -211,15 +217,19 @@
                     window.location.href = 'dashboard.html';
                     return;
                 }
-                // Show admin name in navbar
                 const navName = document.getElementById('adminNavName');
                 if (navName) navName.textContent = auth.user.name || 'Admin';
-
                 loadLive();
                 loadOffice();
             } catch (e) {
                 console.error('Admin panel init error:', e);
-                window.location.href = 'login.html';
+                const saved = localStorage.getItem('employee');
+                if (saved) {
+                    loadLive();
+                    loadOffice();
+                } else {
+                    window.location.href = 'login.html';
+                }
             }
         });
 

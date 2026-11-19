@@ -10,14 +10,32 @@ let loginTimestamp = null, breakStartTimestamp = null, totalBreakSeconds = 0;
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+    // Check token first from localStorage
+    const token = localStorage.getItem('auth_token');
+    const savedEmployee = localStorage.getItem('employee');
+    
+    if (!token || !savedEmployee) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     try {
         const auth = await apiCall('/auth/check/');
-        if (!auth.authenticated) { window.location.href = 'login.html'; return; }
+        if (!auth.authenticated) {
+            clearAuthToken();
+            window.location.href = 'login.html';
+            return;
+        }
 
         const adminLink = document.getElementById('adminLink');
         if (adminLink) adminLink.style.display = auth.is_admin ? 'flex' : 'none';
 
-    } catch { window.location.href = 'login.html'; return; }
+    } catch {
+        // If check fails, still try to load dashboard with saved data
+        const adminLink = document.getElementById('adminLink');
+        const emp = JSON.parse(savedEmployee);
+        if (adminLink && emp.is_admin) adminLink.style.display = 'flex';
+    }
 
     await loadDashboard();
     startClock();
